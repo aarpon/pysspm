@@ -22,6 +22,12 @@ def create_project(name: str, user_name: str, user_email: str, user_group: str):
     typer.echo(f"Create a new project with the passed arguments.")
 
 
+@app.command("list")
+def list_project():
+    """List all projects."""
+    typer.echo(f"List all projects.")
+
+
 @app.command("stats")
 def stats(filter=None):
     """Retrieve statistics."""
@@ -31,9 +37,7 @@ def stats(filter=None):
 @app.command("version")
 def version():
     """Print version information."""
-    typer.echo(
-        f"spm -- Simple scientific project management tool version {__version__}."
-    )
+    typer.echo(f"{__version__}")
 
 
 def main():
