@@ -14,6 +14,15 @@ class ConfigurationManager(object, metaclass=Singleton):
         a default one that is not yet usable.
         """
 
+        # Current version
+        self._version = 0
+
+        # Valid keys
+        self.valid_keys = [
+            "projects.location",
+            "tools.git_path"
+        ]
+
         # Configuration parser
         self._config = None
 
@@ -32,13 +41,30 @@ class ConfigurationManager(object, metaclass=Singleton):
             self._config = configparser.ConfigParser()
         self._config.read(self._conf_file)
 
+    def __getitem__(self, item):
+        """Get item for current key."""
+        parts = item.split(".")
+        if parts[0] not in self._config.sections():
+            raise ValueError(f"Invalid configuration key '{item}'.")
+        if parts[1] not in self._config[parts[0]]:
+            raise ValueError(f"Invalid configuration key '{item}'.")
+        return self._config[parts[0]][parts[1]]
+
     @property
     def is_valid(self) -> bool:
         """Check current configuration."""
         return self._validate()
 
+    def keys(self) -> list:
+        """Return the list of configuration keys."""
+        return self.valid_keys
+
     def _validate(self):
         """Check current configuration."""
+
+        # Check that the version matches the latest
+        if self._config["metadata"]["version"] != str(self._version):
+            return False
 
         # Check that the Projects location value is set
         if self._config["projects"]["location"] == "":
@@ -60,11 +86,15 @@ class ConfigurationManager(object, metaclass=Singleton):
 
         # Metadata information
         self._config["metadata"] = {}
-        self._config["metadata"]["version"] = "0"
+        self._config["metadata"]["version"] = str(self._version)
 
         # Projects root folder
         self._config["projects"] = {}
         self._config["projects"]["location"] = ""
+
+        # Tools
+        self._config["tools"] = {}
+        self._config["tools"]["git_path"] = ""
 
         # Make sure the .config/obit folder exists
         Path(self._conf_path).mkdir(exist_ok=True)
