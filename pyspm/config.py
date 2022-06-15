@@ -1,9 +1,11 @@
 import configparser
 from pathlib import Path
 
+from pyspm.util import Singleton
 
-class ConfigurationManager(object):
-    """Configuration manager."""
+
+class ConfigurationManager(object, metaclass=Singleton):
+    """Configuration manager (singleton class)."""
 
     def __init__(self):
         """Constructor.
@@ -37,7 +39,15 @@ class ConfigurationManager(object):
 
     def _validate(self):
         """Check current configuration."""
-        print("Implement config file validation!")
+
+        # Check that the Projects location value is set
+        if self._config["projects"]["location"] == "":
+            return False
+
+        location = Path(self._config["projects"]["location"])
+        location.mkdir(parents=True, exist_ok=True)
+        if location.is_dir():
+            return True
 
         return False
 
