@@ -207,7 +207,7 @@ test = ["shellingham (>=1.3.0,<2.0.0)", "pytest (>=4.4.0,<5.4.0)", "pytest-cov (
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.18"
-content-hash = "c6a38d1227aa534f73b6b89c5ba34c726ca7150b5a35b47830e26ebb63a1b755"
+content-hash = "3dbcdba9eb8ef9915557aa5450c4acaf2bb088f324e60c6351467f353ffc7204"
 
 [metadata.files]
 atomicwrites = [
