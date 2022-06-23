@@ -20,7 +20,9 @@ class ConfigurationManager(object, metaclass=Singleton):
         # Valid keys
         self.valid_keys = [
             "projects.location",
-            "tools.git_path"
+            "projects.external_data",
+            "tools.git_path",
+            "tools.use_git",
         ]
 
         # Configuration parser
@@ -41,6 +43,16 @@ class ConfigurationManager(object, metaclass=Singleton):
             self._config = configparser.ConfigParser()
         self._config.read(self._conf_file)
 
+    @property
+    def next_id(self):
+        return int(self._config["metadata"]["last_project_id"]) + 1
+
+    def update_id(self):
+        """Update the ID and persist it into the configuration file."""
+        self._config["metadata"]["last_project_id"] = str(self.next_id)
+        with open(self._conf_file, "w") as configfile:
+            self._config.write(configfile)
+
     def __getitem__(self, item):
         """Get item for current key."""
         parts = item.split(".")
@@ -49,6 +61,21 @@ class ConfigurationManager(object, metaclass=Singleton):
         if parts[1] not in self._config[parts[0]]:
             raise ValueError(f"Invalid configuration key '{item}'.")
         return self._config[parts[0]][parts[1]]
+
+    def __setitem__(self, item, value):
+        """Set value for requested item."""
+
+        # Find the correct keys
+        parts = item.split(".")
+        if parts[0] not in self._config.sections():
+            raise ValueError(f"Invalid configuration key '{item}'.")
+        if parts[1] not in self._config[parts[0]]:
+            raise ValueError(f"Invalid configuration key '{item}'.")
+        self._config[parts[0]][parts[1]] = value
+
+        # Write the configuration file
+        with open(self._conf_file, "w") as configfile:
+            self._config.write(configfile)
 
     @property
     def is_valid(self) -> bool:
@@ -87,14 +114,18 @@ class ConfigurationManager(object, metaclass=Singleton):
         # Metadata information
         self._config["metadata"] = {}
         self._config["metadata"]["version"] = str(self._version)
+        self._config["metadata"]["last_project_id"] = "-1"
 
         # Projects root folder
         self._config["projects"] = {}
         self._config["projects"]["location"] = ""
+        self._config["projects"]["external_data"] = ""
+        self._config["projects"]["template"] = "<TO_BE_DESIGNED>"
 
         # Tools
         self._config["tools"] = {}
         self._config["tools"]["git_path"] = ""
+        self._config["tools"]["use_git"] = "True"
 
         # Make sure the .config/obit folder exists
         Path(self._conf_path).mkdir(exist_ok=True)

@@ -4,11 +4,6 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from pyspm.config import ConfigurationManager
-
-# Load configuration (singleton)
-CONFIG_MANAGER = ConfigurationManager()
-
 
 class Project:
     """Class Project that takes care of initializing all project information and filesystem structure."""
@@ -22,6 +17,7 @@ class Project:
         user_email: str,
         user_group: str,
         project_short_descr: str,
+        use_git: bool = True,
         git_path: str = "",
         extern_git_repos: str = "",
     ):
@@ -50,6 +46,9 @@ class Project:
 
         project_short_descr: str
             Short description of the project.
+
+        use_git: bool
+            Whether to initialize an empty git repository for the project.
 
         git_path: str
             Path to the git executable. Leave empty to get it from the path.
@@ -94,6 +93,9 @@ class Project:
         self.CODE_ILASTIK_PATH = self.CODE_PATH / "ilastik"
         self.REFERENCES_PATH = self.PROJECT_ROOT_DIR / "references"
 
+        # Do we use git?
+        self.use_git = use_git
+
         # Extern git repos (submodules)
         self.EXTERN_GIT_REPOS = self._process_list_if_extern_git_repos(extern_git_repos)
 
@@ -103,6 +105,11 @@ class Project:
             self._get_and_store_git_path()
         else:
             self.set_git_path(git_path)
+
+    @property
+    def full_path(self):
+        """Return the full path to the created project."""
+        return self.PROJECT_ROOT_DIR
 
     def init(self):
         """Initialize the project structure.
@@ -223,6 +230,10 @@ class Project:
 
     def _init_git_repo(self):
         """Initialize git repo for project."""
+
+        if not self.use_git:
+            return
+
         if self.git_path == "":
             return
 
@@ -232,6 +243,12 @@ class Project:
             # Do not overwrite if it already exists
             with open(filename, "w") as f:
                 f.write("/data/\n")
+                f.write(".ipynb_checkpoints/")
+                f.write("__pycache__/")
+                f.write(".pytest_cache/")
+                f.write("iaf.egg-info/")
+                f.write(".vscode/")
+                f.write(".idea/")
 
         # Init git repo
         curr_path = os.getcwd()

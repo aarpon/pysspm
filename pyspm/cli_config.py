@@ -13,15 +13,33 @@ app = typer.Typer(name="config", help="Manage configuration options.")
 @app.command("show")
 def show():
     """Show current configuration options."""
-    typer.echo(typer.style("Current configuration:", fg=typer.colors.GREEN, bold=True))
+    if not CONFIG_MANAGER.is_valid:
+        typer.echo(
+            typer.style(
+                "Error: spm is not configured yet.", fg=typer.colors.RED, bold=True
+            )
+        )
+    else:
+        typer.echo(
+            typer.style("Current configuration:", fg=typer.colors.GREEN, bold=True)
+        )
     for key in CONFIG_MANAGER.keys():
         typer.echo(f"{key} = {CONFIG_MANAGER[key]}")
 
 
 @app.command("set")
-def set(name: str, value: str):
+def set(item: str, value: str):
     """Set the option with specified name to the passed value."""
-    typer.echo("Set the option with specified name to the passed value.")
+    try:
+        CONFIG_MANAGER[item] = value
+    except ValueError as e:
+        typer.echo(
+            typer.style(
+                f"Error: Configuration key '{item}' does not exist.",
+                fg=typer.colors.RED,
+                bold=True,
+            )
+        )
 
 
 @app.command("get")
@@ -30,4 +48,10 @@ def get(key: str):
     try:
         typer.echo(f"{key} = {CONFIG_MANAGER[key]}")
     except ValueError as e:
-        typer.echo(typer.style(f"Error: Configuration key '{key}' does not exist.", fg=typer.colors.RED, bold=True))
+        typer.echo(
+            typer.style(
+                f"Error: Configuration key '{key}' does not exist.",
+                fg=typer.colors.RED,
+                bold=True,
+            )
+        )

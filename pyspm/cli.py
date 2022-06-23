@@ -26,8 +26,6 @@ def version():
 
 def main():
     """Entry point for the spm script."""
-    if not CONFIG_MANAGER.is_valid:
-        typer.echo("spm is not configured yet.")
     app()
 
 
