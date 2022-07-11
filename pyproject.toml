@@ -5,7 +5,7 @@ description = "Simple (scientific) project management tool."
 authors = ["Aaron Ponti <aaron.ponti@bsse.ethz.ch>"]
 
 [tool.poetry.dependencies]
-python = "^3.18"
+python = "^3.10"
 typer = "^0.4.1"
 colorama = "^0.4.4"
 
