@@ -325,7 +325,7 @@ class Project:
             with open(filename, "w") as f:
                 f.write("# " + self.PROJECT_TITLE + "\n")
                 f.write("**Start date**: " + self.TODAY.strftime("%d/%m/%Y") + "\n")
-                f.write("**Status**: new")
+                f.write("**Status**: new\n")
                 f.write("**End date**:\n")
                 f.write("## User information\n")
                 f.write("**Name**: " + self.USER_NAME + "\n")
