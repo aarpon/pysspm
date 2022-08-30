@@ -78,6 +78,11 @@ class ConfigurationManager(object, metaclass=Singleton):
             self._config.write(configfile)
 
     @property
+    def config_file(self) -> str:
+        """Return full path of configuration file."""
+        return str(self._conf_file)
+
+    @property
     def is_valid(self) -> bool:
         """Check current configuration."""
         return self._validate()

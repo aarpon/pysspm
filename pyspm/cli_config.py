@@ -9,6 +9,20 @@ CONFIG_MANAGER = ConfigurationManager()
 # Instantiate Typer
 app = typer.Typer(name="config", help="Manage configuration options.")
 
+@app.command("location")
+def show():
+    """Show full path of configuration file."""
+    if not CONFIG_MANAGER.is_valid:
+        typer.echo(
+            typer.style(
+                "Error: spm is not configured yet.", fg=typer.colors.RED, bold=True
+            )
+        )
+    else:
+        typer.echo(
+            typer.style(f"Configuration file: {CONFIG_MANAGER.config_file}")
+        )
+
 
 @app.command("show")
 def show():
@@ -23,8 +37,8 @@ def show():
         typer.echo(
             typer.style("Current configuration:", fg=typer.colors.GREEN, bold=True)
         )
-    for key in CONFIG_MANAGER.keys():
-        typer.echo(f"{key} = {CONFIG_MANAGER[key]}")
+        for key in CONFIG_MANAGER.keys():
+            typer.echo(f"{key} = {CONFIG_MANAGER[key]}")
 
 
 @app.command("set")
