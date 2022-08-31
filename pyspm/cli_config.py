@@ -9,6 +9,7 @@ CONFIG_MANAGER = ConfigurationManager()
 # Instantiate Typer
 app = typer.Typer(name="config", help="Manage configuration options.")
 
+
 @app.command("location")
 def show():
     """Show full path of configuration file."""
@@ -19,9 +20,7 @@ def show():
             )
         )
     else:
-        typer.echo(
-            typer.style(f"Configuration file: {CONFIG_MANAGER.config_file}")
-        )
+        typer.echo(typer.style(f"Configuration file: {CONFIG_MANAGER.config_file}"))
 
 
 @app.command("show")

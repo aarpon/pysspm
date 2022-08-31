@@ -1,9 +1,10 @@
-from pathlib import Path
 import re
+from pathlib import Path
 
 import typer
 
 from pyspm.config import ConfigurationManager
+
 # Load configuration (singleton)
 from pyspm.project import Project
 
@@ -137,16 +138,18 @@ def show():
             continue
 
         valid_years_subfolders[subfolder] = []
-    
+
     # Now process the years subfolders to extract the months
     for year_subfolder in valid_years_subfolders:
         print(year_subfolder.name)
-        valid_months_subfolders = [] 
+        valid_months_subfolders = []
         for subfolder in Path(year_subfolder).iterdir():
             try:
                 month = int(subfolder.name)
                 if month < 0 or month > 12:
-                    raise ValueError("Only integer representing months (1..12) are valid.")
+                    raise ValueError(
+                        "Only integer representing months (1..12) are valid."
+                    )
             except ValueError as _:
                 continue
 
@@ -173,8 +176,15 @@ def show():
                                     user = line[10:]
                                 if line.startswith("**Group**: "):
                                     group = line[11:]
-                                if title != "" and status != "" and user != "" and group != "":
+                                if (
+                                    title != ""
+                                    and status != ""
+                                    and user != ""
+                                    and group != ""
+                                ):
                                     break
-                            print(f"\t\t[{subfolder.name}] {user} ({group}):: {title} [{status}]")
+                            typer.echo(
+                                f"\t\t[{subfolder.name}] {user} ({group}):: {title} [{status}]"
+                            )
                     except Exception as e:
                         print(e)
