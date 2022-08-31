@@ -1,3 +1,4 @@
+from pathlib import Path
 import re
 
 import typer
@@ -125,4 +126,55 @@ def show():
         )
         raise typer.Exit()
 
-    typer.echo(f"List all projects.")
+    # Retrieve all subfolders that map to valid years
+    valid_years_subfolders = {}
+    for subfolder in Path(CONFIG_MANAGER["projects.location"]).iterdir():
+        try:
+            year = int(subfolder.name)
+            if year < 2021:
+                raise ValueError("Only years after 2021 are valid.")
+        except ValueError as _:
+            continue
+
+        valid_years_subfolders[subfolder] = []
+    
+    # Now process the years subfolders to extract the months
+    for year_subfolder in valid_years_subfolders:
+        print(year_subfolder.name)
+        valid_months_subfolders = [] 
+        for subfolder in Path(year_subfolder).iterdir():
+            try:
+                month = int(subfolder.name)
+                if month < 0 or month > 12:
+                    raise ValueError("Only integer representing months (1..12) are valid.")
+            except ValueError as _:
+                continue
+
+            valid_months_subfolders.append(subfolder)
+
+        for valid_month in valid_months_subfolders:
+            print(f"\t{valid_month.name}")
+            for subfolder in Path(valid_month).iterdir():
+                metadata_file = subfolder / "metadata" / "info.md"
+                if metadata_file.is_file():
+                    try:
+                        with open(metadata_file, "r", encoding="utf-8") as f:
+                            title = ""
+                            user = ""
+                            group = ""
+                            status = ""
+                            for line in f:
+                                line = line.strip()
+                                if line.startswith("# "):
+                                    title = line[2:].strip()
+                                if line.startswith("**Status**: "):
+                                    status = line[12:]
+                                if line.startswith("**Name**: "):
+                                    user = line[10:]
+                                if line.startswith("**Group**: "):
+                                    group = line[11:]
+                                if title != "" and status != "" and user != "" and group != "":
+                                    break
+                            print(f"\t\t[{subfolder.name}] {user} ({group}):: {title} [{status}]")
+                    except Exception as e:
+                        print(e)
