@@ -3,7 +3,7 @@ from pathlib import Path
 
 import typer
 
-from pyspm.config import ConfigurationManager
+from pyspm.config import ConfigurationManager, MetadataManager
 
 # Load configuration (singleton)
 from pyspm.project import Project
@@ -74,8 +74,11 @@ def create(
         )
         raise typer.Exit()
 
-    # Current project id
-    project_id = CONFIG_MANAGER.next_id
+    # Get last used project id
+    last_id = MetadataManager.get_last_id(projects_location)
+
+    # Update the id
+    project_id = last_id + 1
 
     # Folder name
     project_dir = f"P_{project_id:04}"
@@ -102,7 +105,7 @@ def create(
     project.init()
 
     # Update the last project ID
-    CONFIG_MANAGER.update_id()
+    MetadataManager.update_last_id(projects_location)
 
     # Inform
     typer.echo(

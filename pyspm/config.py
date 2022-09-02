@@ -43,16 +43,6 @@ class ConfigurationManager(object, metaclass=Singleton):
             self._config = configparser.ConfigParser()
         self._config.read(self._conf_file)
 
-    @property
-    def next_id(self):
-        return int(self._config["metadata"]["last_project_id"]) + 1
-
-    def update_id(self):
-        """Update the ID and persist it into the configuration file."""
-        self._config["metadata"]["last_project_id"] = str(self.next_id)
-        with open(self._conf_file, "w", encoding="utf-8") as configfile:
-            self._config.write(configfile)
-
     def __getitem__(self, item):
         """Get item for current key."""
         parts = item.split(".")
@@ -119,7 +109,6 @@ class ConfigurationManager(object, metaclass=Singleton):
         # Metadata information
         self._config["metadata"] = {}
         self._config["metadata"]["version"] = str(self._version)
-        self._config["metadata"]["last_project_id"] = "-1"
 
         # Projects root folder
         self._config["projects"] = {}
@@ -138,3 +127,36 @@ class ConfigurationManager(object, metaclass=Singleton):
         # Write the configuration file
         with open(self._conf_file, "w", encoding="utf-8") as configfile:
             self._config.write(configfile)
+
+
+class MetadataManager(object):
+    """Project metadata manager (static class)."""
+
+    @staticmethod
+    def get_last_id(projects_location: Path) -> int:
+        """Get the last project id."""
+
+        projects_metadata = Path(projects_location) / ".projects"
+        if not projects_metadata.is_file():
+            with open(projects_metadata, "w", encoding="utf-8") as f:
+                f.write("last_id=-1")
+        with open(projects_metadata, "r", encoding="utf-8") as f:
+            line = f.readline().strip()
+            if not line.startswith("last_id="):
+                raise ValueError(f"The file {projects_metadata} is corrupted!")
+            try:
+                last_id = int(line[8:])
+            except ValueError as _:
+                raise ValueError(f"The file {projects_metadata} is corrupted!")
+        return last_id
+
+    @staticmethod
+    def update_last_id(projects_location: Path) -> None:
+        """Update the last project id."""
+
+        # Get the last id
+        last_id = MetadataManager.get_last_id(projects_location)
+        next_id = last_id + 1
+        projects_metadata = Path(projects_location) / ".projects"
+        with open(projects_metadata, "w", encoding="utf-8") as f:
+            f.write(f"last_id={next_id}")
