@@ -241,7 +241,7 @@ class Project:
         filename = self.PROJECT_ROOT_DIR / ".gitignore"
         if not filename.is_file():
             # Do not overwrite if it already exists
-            with open(filename, "w") as f:
+            with open(filename, "w", encoding="utf-8") as f:
                 f.write("/data/\n")
                 f.write(".ipynb_checkpoints/")
                 f.write("__pycache__/")
@@ -322,7 +322,7 @@ class Project:
         filename = self.METADATA_PATH / "info.md"
         if not filename.is_file():
             # Do not overwrite if it already exists
-            with open(filename, "w") as f:
+            with open(filename, "w", encoding="utf-8") as f:
                 f.write("# " + self.PROJECT_TITLE + "\n")
                 f.write("**Start date**: " + self.TODAY.strftime("%d/%m/%Y") + "\n")
                 f.write("**Status**: new\n")

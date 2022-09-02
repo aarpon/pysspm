@@ -50,7 +50,7 @@ class ConfigurationManager(object, metaclass=Singleton):
     def update_id(self):
         """Update the ID and persist it into the configuration file."""
         self._config["metadata"]["last_project_id"] = str(self.next_id)
-        with open(self._conf_file, "w") as configfile:
+        with open(self._conf_file, "w", encoding="utf-8") as configfile:
             self._config.write(configfile)
 
     def __getitem__(self, item):
@@ -74,7 +74,7 @@ class ConfigurationManager(object, metaclass=Singleton):
         self._config[parts[0]][parts[1]] = value
 
         # Write the configuration file
-        with open(self._conf_file, "w") as configfile:
+        with open(self._conf_file, "w", encoding="utf-8") as configfile:
             self._config.write(configfile)
 
     @property
@@ -136,5 +136,5 @@ class ConfigurationManager(object, metaclass=Singleton):
         Path(self._conf_path).mkdir(exist_ok=True)
 
         # Write the configuration file
-        with open(self._conf_file, "w") as configfile:
+        with open(self._conf_file, "w", encoding="utf-8") as configfile:
             self._config.write(configfile)
