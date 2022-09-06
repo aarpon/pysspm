@@ -2,6 +2,7 @@ import re
 from pathlib import Path
 
 import typer
+from columnar import columnar
 
 from pyspm.config import ConfigurationManager, MetadataManager
 
@@ -142,9 +143,11 @@ def show():
 
         valid_years_subfolders[subfolder] = []
 
+    # List to collect project information for rendering
+    project_data = []
+
     # Now process the years subfolders to extract the months
     for year_subfolder in valid_years_subfolders:
-        print(year_subfolder.name)
         valid_months_subfolders = []
         for subfolder in Path(year_subfolder).iterdir():
             try:
@@ -159,7 +162,6 @@ def show():
             valid_months_subfolders.append(subfolder)
 
         for valid_month in valid_months_subfolders:
-            print(f"\t{valid_month.name}")
             for subfolder in Path(valid_month).iterdir():
                 metadata_file = subfolder / "metadata" / "info.md"
                 if metadata_file.is_file():
@@ -186,8 +188,35 @@ def show():
                                     and group != ""
                                 ):
                                     break
-                            typer.echo(
-                                f"\t\t[{subfolder.name}] {user} ({group}):: {title} [{status}]"
+
+                            # Add project data
+                            project_data.append(
+                                [
+                                    year_subfolder.name,
+                                    valid_month.name,
+                                    subfolder.name,
+                                    title,
+                                    user,
+                                    group,
+                                    status,
+                                ]
                             )
                     except Exception as e:
                         print(e)
+
+    if len(project_data) == 0:
+        typer.echo("No projects found.")
+        return
+
+    headers = [
+        "Year",
+        "Month",
+        "ID",
+        "Title",
+        "User name",
+        "User e-mail",
+        "Group",
+        "status",
+    ]
+    table = columnar(project_data, headers)
+    typer.echo(table)

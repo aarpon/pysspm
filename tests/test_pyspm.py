@@ -24,7 +24,7 @@ def test_set_config_value():
     # Retrieve current value
     result = runner.invoke(app, ["config", "get", "projects.location"])
     assert result.exit_code == 0
-    current_value = re.search('projects.location = (.+?)\n', result.output).group(1)
+    current_value = re.search("projects.location = (.+?)\n", result.output).group(1)
 
     # Replace it with a new value and check that the new value is saved
     test_value = "/Users/aaron/Project"
@@ -33,7 +33,7 @@ def test_set_config_value():
 
     result = runner.invoke(app, ["config", "get", "projects.location"])
     assert result.exit_code == 0
-    new_value = re.search('projects.location = (.+?)\n', result.output).group(1)
+    new_value = re.search("projects.location = (.+?)\n", result.output).group(1)
     assert test_value == new_value
 
     # Restore original value
