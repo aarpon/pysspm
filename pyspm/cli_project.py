@@ -2,7 +2,7 @@ import re
 from pathlib import Path
 
 import typer
-from columnar import columnar
+from tabulate import tabulate
 
 from pyspm.config import ConfigurationManager, MetadataManager
 
@@ -169,6 +169,7 @@ def show():
                         with open(metadata_file, "r", encoding="utf-8") as f:
                             title = ""
                             user = ""
+                            email = ""
                             group = ""
                             status = ""
                             for line in f:
@@ -179,12 +180,15 @@ def show():
                                     status = line[12:]
                                 if line.startswith("**Name**: "):
                                     user = line[10:]
+                                if line.startswith("**E-mail**: "):
+                                    email = line[12:]
                                 if line.startswith("**Group**: "):
                                     group = line[11:]
                                 if (
                                     title != ""
                                     and status != ""
                                     and user != ""
+                                    and email != ""
                                     and group != ""
                                 ):
                                     break
@@ -197,6 +201,7 @@ def show():
                                     subfolder.name,
                                     title,
                                     user,
+                                    email,
                                     group,
                                     status,
                                 ]
@@ -218,5 +223,6 @@ def show():
         "Group",
         "status",
     ]
-    table = columnar(project_data, headers)
+
+    table = tabulate(project_data, headers=headers, tablefmt='fancy_grid')
     typer.echo(table)
