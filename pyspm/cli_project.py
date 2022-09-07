@@ -5,7 +5,6 @@ import typer
 from tabulate import tabulate
 
 from pyspm.config import ConfigurationManager, MetadataManager
-
 from pyspm.project import Project, ProjectManager
 
 # Load configuration (singleton)
@@ -132,10 +131,13 @@ def show():
         raise typer.Exit()
 
     # Retrieve the projects table
-    table_str = ProjectManager.get_projects_table(CONFIG_MANAGER["projects.location"])
+    project_data, headers = ProjectManager.get_projects(
+        CONFIG_MANAGER["projects.location"]
+    )
 
-    if len(table_str) == 0:
+    if len(project_data) == 0:
         typer.echo("No projects found.")
         return
     else:
-        typer.echo(table_str)
+        table = tabulate(project_data, headers=headers, tablefmt="fancy_grid")
+        typer.echo(table)

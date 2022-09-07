@@ -4,8 +4,6 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from tabulate import tabulate
-
 
 class Project:
     """Class Project that takes care of initializing all project information and filesystem structure."""
@@ -342,8 +340,8 @@ class ProjectManager(object):
     """Project manager (static class)."""
 
     @staticmethod
-    def get_projects_table(projects_location: Path) -> str:
-        """Compile the table of projects."""
+    def get_projects(projects_location: Path) -> list:
+        """Return the list of projects."""
 
         # Retrieve all subfolders that map to valid years
         valid_years_subfolders = {}
@@ -425,9 +423,6 @@ class ProjectManager(object):
                         except Exception as e:
                             print(e)
 
-        if len(project_data) == 0:
-            return ""
-
         headers = [
             "Year",
             "Month",
@@ -436,8 +431,7 @@ class ProjectManager(object):
             "User name",
             "User e-mail",
             "Group",
-            "status",
+            "Status",
         ]
 
-        table = tabulate(project_data, headers=headers, tablefmt="fancy_grid")
-        return table
+        return project_data, headers
