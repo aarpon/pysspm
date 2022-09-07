@@ -4,6 +4,8 @@ import sys
 from datetime import date
 from pathlib import Path
 
+from tabulate import tabulate
+
 
 class Project:
     """Class Project that takes care of initializing all project information and filesystem structure."""
@@ -334,3 +336,108 @@ class Project:
                 f.write("**Collaborators**: \n\n")
                 f.write("## Description\n")
                 f.write(self.PROJECT_DESCRIPTION + "\n")
+
+
+class ProjectManager(object):
+    """Project manager (static class)."""
+
+    @staticmethod
+    def get_projects_table(projects_location: Path) -> str:
+        """Compile the table of projects."""
+
+        # Retrieve all subfolders that map to valid years
+        valid_years_subfolders = {}
+        for subfolder in Path(projects_location).iterdir():
+            try:
+                year = int(subfolder.name)
+                if year < 2021:
+                    raise ValueError("Only years after 2021 are valid.")
+            except ValueError as _:
+                # Ignore the error and move on
+                continue
+
+            valid_years_subfolders[subfolder] = []
+
+        # List to collect project information for rendering
+        project_data = []
+
+        # Now process the years subfolders to extract the months
+        for year_subfolder in valid_years_subfolders:
+            valid_months_subfolders = []
+            for subfolder in Path(year_subfolder).iterdir():
+                try:
+                    month = int(subfolder.name)
+                    if month < 0 or month > 12:
+                        raise ValueError(
+                            "Only integer representing months (1..12) are valid."
+                        )
+                except ValueError as _:
+                    # Ignore the error and move on
+                    continue
+
+                valid_months_subfolders.append(subfolder)
+
+            for valid_month in valid_months_subfolders:
+                for subfolder in Path(valid_month).iterdir():
+                    metadata_file = subfolder / "metadata" / "info.md"
+                    if metadata_file.is_file():
+                        try:
+                            with open(metadata_file, "r", encoding="utf-8") as f:
+                                title = ""
+                                user = ""
+                                email = ""
+                                group = ""
+                                status = ""
+                                for line in f:
+                                    line = line.strip()
+                                    if line.startswith("# "):
+                                        title = line[2:].strip()
+                                    if line.startswith("**Status**: "):
+                                        status = line[12:]
+                                    if line.startswith("**Name**: "):
+                                        user = line[10:]
+                                    if line.startswith("**E-mail**: "):
+                                        email = line[12:]
+                                    if line.startswith("**Group**: "):
+                                        group = line[11:]
+                                    if (
+                                        title != ""
+                                        and status != ""
+                                        and user != ""
+                                        and email != ""
+                                        and group != ""
+                                    ):
+                                        break
+
+                                # Add project data
+                                project_data.append(
+                                    [
+                                        year_subfolder.name,
+                                        valid_month.name,
+                                        subfolder.name,
+                                        title,
+                                        user,
+                                        email,
+                                        group,
+                                        status,
+                                    ]
+                                )
+                        except Exception as e:
+                            print(e)
+
+        if len(project_data) == 0:
+            return ""
+
+        headers = [
+            "Year",
+            "Month",
+            "ID",
+            "Title",
+            "User name",
+            "User e-mail",
+            "Group",
+            "status",
+        ]
+
+        table = tabulate(project_data, headers=headers, tablefmt="fancy_grid")
+        return table
