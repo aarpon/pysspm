@@ -1,4 +1,6 @@
+import os
 import re
+import subprocess
 from pathlib import Path
 
 import typer
@@ -141,3 +143,31 @@ def show():
     else:
         table = tabulate(project_data, headers=headers, tablefmt="fancy_grid")
         typer.echo(table)
+
+
+@app.command("open")
+def show():
+    """Open the projects folder in the systems file explorer."""
+
+    # Check that we have a valid configuration
+    if not CONFIG_MANAGER.is_valid:
+        typer.echo(
+            typer.style(
+                "Error: spm is not configured yet.", fg=typer.colors.RED, bold=True
+            )
+        )
+        raise typer.Exit()
+
+    # Rely on Pythons's `os.startfile()` to open the system's file explorer
+    try:
+        os.startfile(CONFIG_MANAGER["projects.location"])
+    except FileNotFoundError as _:
+        typer.echo(
+            typer.style(
+                f"Error: failed opening folder {CONFIG_MANAGER['projects.location']} in file manager. "
+                + f"Please check your configuration.",
+                fg=typer.colors.RED,
+                bold=True,
+            )
+        )
+        raise typer.Exit()
