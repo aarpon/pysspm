@@ -3,6 +3,7 @@ import platform
 import re
 import subprocess
 from pathlib import Path
+from typing import Optional
 
 import typer
 from tabulate import tabulate
@@ -121,7 +122,11 @@ def create(
 
 
 @app.command("list")
-def show():
+def show(
+    project_id: Optional[str] = typer.Argument(
+        None, help="ID of the project to visualize. Omit to show all projects."
+    )
+):
     """List all projects."""
 
     # Check that we have a valid configuration
@@ -135,7 +140,7 @@ def show():
 
     # Retrieve the projects table
     project_data, headers = ProjectManager.get_projects(
-        CONFIG_MANAGER["projects.location"]
+        CONFIG_MANAGER["projects.location"], project_id
     )
 
     if len(project_data) == 0:
@@ -147,8 +152,13 @@ def show():
 
 
 @app.command("open")
-def show():
-    """Open the projects folder in the systems file explorer."""
+def open_folder(
+    project_id: Optional[str] = typer.Argument(
+        None,
+        help="ID of the project folder to open. Omit to open the root projects folder.",
+    )
+):
+    """Open a requested or all projects folder in the system's file explorer."""
 
     # Check that we have a valid configuration
     if not CONFIG_MANAGER.is_valid:
@@ -159,13 +169,20 @@ def show():
         )
         raise typer.Exit()
 
+    if project_id is None:
+        folder_to_open = CONFIG_MANAGER["projects.location"]
+    else:
+        folder_to_open = ProjectManager.get_project_path_by_id(
+            CONFIG_MANAGER["projects.location"], project_id
+        )
+
     if platform.system() == "Windows":
         try:
-            os.startfile(CONFIG_MANAGER["projects.location"])
+            os.startfile(folder_to_open)
         except FileNotFoundError as _:
             typer.echo(
                 typer.style(
-                    f"Error: failed opening folder {CONFIG_MANAGER['projects.location']} in Windows explorer. "
+                    f"Error: failed opening folder {folder_to_open} in Windows explorer. "
                     + f"Please check your configuration.",
                     fg=typer.colors.RED,
                     bold=True,
@@ -175,11 +192,11 @@ def show():
 
     elif platform.system() == "Darwin":
         try:
-            subprocess.call(["open", CONFIG_MANAGER["projects.location"]])
+            subprocess.call(["open", folder_to_open])
         except FileNotFoundError as _:
             typer.echo(
                 typer.style(
-                    f"Error: failed opening folder {CONFIG_MANAGER['projects.location']} in Finder. "
+                    f"Error: failed opening folder {folder_to_open} in Finder. "
                     + f"Please check your configuration.",
                     fg=typer.colors.RED,
                     bold=True,
@@ -189,11 +206,11 @@ def show():
 
     elif platform.system() == "Linux":
         try:
-            subprocess.call(["xdg-open", CONFIG_MANAGER["projects.location"]])
+            subprocess.call(["xdg-open", folder_to_open])
         except FileNotFoundError as _:
             typer.echo(
                 typer.style(
-                    f"Error: failed opening folder {CONFIG_MANAGER['projects.location']} in Finder. "
+                    f"Error: failed opening folder {folder_to_open} in Finder. "
                     + f"Please check your configuration.",
                     fg=typer.colors.RED,
                     bold=True,
@@ -210,4 +227,3 @@ def show():
             )
         )
         raise typer.Exit()
-

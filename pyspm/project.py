@@ -3,6 +3,7 @@ import subprocess
 import sys
 from datetime import date
 from pathlib import Path
+from typing import Optional
 
 
 class Project:
@@ -340,44 +341,31 @@ class ProjectManager(object):
     """Project manager (static class)."""
 
     @staticmethod
-    def get_projects(projects_location: Path) -> list:
+    def get_projects(projects_folder: Path, project_id: Optional[str] = None) -> tuple:
         """Return the list of projects."""
 
-        # Retrieve all subfolders that map to valid years
-        valid_years_subfolders = {}
-        for subfolder in Path(projects_location).iterdir():
-            try:
-                year = int(subfolder.name)
-                if year < 2021:
-                    raise ValueError("Only years after 2021 are valid.")
-            except ValueError as _:
-                # Ignore the error and move on
-                continue
-
-            valid_years_subfolders[subfolder] = []
+        # Retrieve all sub-folders that map to valid years
+        year_folders = ProjectManager._get_year_folders(projects_folder)
 
         # List to collect project information for rendering
         project_data = []
 
-        # Now process the years subfolders to extract the months
-        for year_subfolder in valid_years_subfolders:
-            valid_months_subfolders = []
-            for subfolder in Path(year_subfolder).iterdir():
-                try:
-                    month = int(subfolder.name)
-                    if month < 0 or month > 12:
-                        raise ValueError(
-                            "Only integer representing months (1..12) are valid."
-                        )
-                except ValueError as _:
-                    # Ignore the error and move on
-                    continue
+        # Now process the year folders to extract the months
+        for year_folder in year_folders:
 
-                valid_months_subfolders.append(subfolder)
+            # Extract valid month folders for current year folder
+            month_folders = ProjectManager._get_month_folders(year_folder)
 
-            for valid_month in valid_months_subfolders:
-                for subfolder in Path(valid_month).iterdir():
-                    metadata_file = subfolder / "metadata" / "info.md"
+            # Now examine all project folders
+            for month_folder in month_folders:
+
+                for candidate_project_folder in Path(month_folder).iterdir():
+
+                    if project_id is not None:
+                        if Path(candidate_project_folder).name != project_id:
+                            continue
+
+                    metadata_file = candidate_project_folder / "metadata" / "info.md"
                     if metadata_file.is_file():
                         try:
                             with open(metadata_file, "r", encoding="utf-8") as f:
@@ -410,9 +398,9 @@ class ProjectManager(object):
                                 # Add project data
                                 project_data.append(
                                     [
-                                        year_subfolder.name,
-                                        valid_month.name,
-                                        subfolder.name,
+                                        year_folder.name,
+                                        month_folder.name,
+                                        candidate_project_folder.name,
                                         title,
                                         user,
                                         email,
@@ -435,3 +423,67 @@ class ProjectManager(object):
         ]
 
         return project_data, headers
+
+    @staticmethod
+    def get_project_path_by_id(projects_folder: Path, project_id: str) -> str:
+        """The project with given ID and returns its full path."""
+
+        # Retrieve all sub-folders that map to valid years
+        year_folders = ProjectManager._get_year_folders(projects_folder)
+
+        # List to collect project information for rendering
+        project_data = []
+
+        # Now process the year folders to extract the months
+        for year_folder in year_folders:
+
+            # Extract valid month folders for current year folder
+            month_folders = ProjectManager._get_month_folders(year_folder)
+
+            # Now examine all project folders
+            for month_folder in month_folders:
+
+                for candidate_project_folder in Path(month_folder).iterdir():
+                    if Path(candidate_project_folder).name == project_id:
+                        return str(Path(candidate_project_folder).resolve())
+
+        # Could not find a project with given `project_id`
+        return ""
+
+    @staticmethod
+    def _get_year_folders(projects_folder) -> list:
+        """Scans the projects folder and returns all valid year folders."""
+
+        year_subfolders = []
+        for subfolder in Path(projects_folder).iterdir():
+            try:
+                year = int(subfolder.name)
+                if year < 2021:
+                    raise ValueError("Only years after 2021 are valid.")
+            except ValueError as _:
+                # Ignore the error and move on
+                continue
+
+            year_subfolders.append(subfolder)
+
+        return year_subfolders
+
+    @staticmethod
+    def _get_month_folders(year_folder) -> list:
+        """Scans the year folder and returns all valid months folders."""
+
+        month_subfolders = []
+        for subfolder in Path(year_folder).iterdir():
+            try:
+                month = int(subfolder.name)
+                if month < 0 or month > 12:
+                    raise ValueError(
+                        "Only integer representing months (1..12) are valid."
+                    )
+            except ValueError as _:
+                # Ignore the error and move on
+                continue
+
+            month_subfolders.append(subfolder)
+
+        return month_subfolders
