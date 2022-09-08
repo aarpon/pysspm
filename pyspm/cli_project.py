@@ -1,4 +1,5 @@
 import os
+import platform
 import re
 import subprocess
 from pathlib import Path
@@ -158,16 +159,55 @@ def show():
         )
         raise typer.Exit()
 
-    # Rely on Pythons's `os.startfile()` to open the system's file explorer
-    try:
-        os.startfile(CONFIG_MANAGER["projects.location"])
-    except FileNotFoundError as _:
+    if platform.system() == "Windows":
+        try:
+            os.startfile(CONFIG_MANAGER["projects.location"])
+        except FileNotFoundError as _:
+            typer.echo(
+                typer.style(
+                    f"Error: failed opening folder {CONFIG_MANAGER['projects.location']} in Windows explorer. "
+                    + f"Please check your configuration.",
+                    fg=typer.colors.RED,
+                    bold=True,
+                )
+            )
+            raise typer.Exit()
+
+    elif platform.system() == "Darwin":
+        try:
+            subprocess.call(["open", CONFIG_MANAGER["projects.location"]])
+        except FileNotFoundError as _:
+            typer.echo(
+                typer.style(
+                    f"Error: failed opening folder {CONFIG_MANAGER['projects.location']} in Finder. "
+                    + f"Please check your configuration.",
+                    fg=typer.colors.RED,
+                    bold=True,
+                )
+            )
+            raise typer.Exit()
+
+    elif platform.system() == "Linux":
+        try:
+            subprocess.call(["xdg-open", CONFIG_MANAGER["projects.location"]])
+        except FileNotFoundError as _:
+            typer.echo(
+                typer.style(
+                    f"Error: failed opening folder {CONFIG_MANAGER['projects.location']} in Finder. "
+                    + f"Please check your configuration.",
+                    fg=typer.colors.RED,
+                    bold=True,
+                )
+            )
+            raise typer.Exit()
+
+    else:
         typer.echo(
             typer.style(
-                f"Error: failed opening folder {CONFIG_MANAGER['projects.location']} in file manager. "
-                + f"Please check your configuration.",
+                f"Sorry, your platform is not supported.",
                 fg=typer.colors.RED,
                 bold=True,
             )
         )
         raise typer.Exit()
+
