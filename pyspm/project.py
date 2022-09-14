@@ -362,7 +362,7 @@ class ProjectManager(object):
                 for candidate_project_folder in Path(month_folder).iterdir():
 
                     if project_id is not None:
-                        if Path(candidate_project_folder).name != project_id:
+                        if not project_id in Path(candidate_project_folder).name:
                             continue
 
                     metadata_file = candidate_project_folder / "metadata" / "info.md"
@@ -431,9 +431,6 @@ class ProjectManager(object):
         # Retrieve all sub-folders that map to valid years
         year_folders = ProjectManager._get_year_folders(projects_folder)
 
-        # List to collect project information for rendering
-        project_data = []
-
         # Now process the year folders to extract the months
         for year_folder in year_folders:
 
@@ -444,7 +441,7 @@ class ProjectManager(object):
             for month_folder in month_folders:
 
                 for candidate_project_folder in Path(month_folder).iterdir():
-                    if Path(candidate_project_folder).name == project_id:
+                    if project_id in Path(candidate_project_folder).name:
                         return str(Path(candidate_project_folder).resolve())
 
         # Could not find a project with given `project_id`

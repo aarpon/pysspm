@@ -176,6 +176,27 @@ def open_folder(
             CONFIG_MANAGER["projects.location"], project_id
         )
 
+    # Project not found. Inform and return
+    if folder_to_open == "":
+        typer.echo(
+            typer.style(
+                f"Error: could not find a folder for project {project_id}. "
+                + f"Make sure to spell the complete ID.",
+                fg=typer.colors.RED,
+                bold=True,
+            )
+        )
+        raise typer.Exit()
+
+    # Inform
+    typer.echo(
+        typer.style(
+            f"Opening {folder_to_open}. ",
+            fg=typer.colors.GREEN,
+            bold=True,
+        )
+    )
+
     if platform.system() == "Windows":
         try:
             os.startfile(folder_to_open)
