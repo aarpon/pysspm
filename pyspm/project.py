@@ -21,6 +21,7 @@ class Project:
         use_git: bool = True,
         git_path: str = "",
         extern_git_repos: str = "",
+        extern_data_dir: str = ""
     ):
         """Instantiate a Project object.
 
@@ -56,6 +57,9 @@ class Project:
 
         extern_git_repos: str
             List of extern git repositories in the form "name_1|url_1;name_2|url_2". Leave empty to omit.
+
+        extern_data_dir: str
+            Optional path to an external data directory.
         """
 
         self._is_init = False
@@ -93,6 +97,15 @@ class Project:
         self.CODE_NOTEBOOKS_PATH = self.CODE_PATH / "notebooks"
         self.CODE_ILASTIK_PATH = self.CODE_PATH / "ilastik"
         self.REFERENCES_PATH = self.PROJECT_ROOT_DIR / "references"
+
+        # Was there an external data directory specified?
+        self.EXTERN_DATA_DIR = ""
+        if extern_data_dir != "":
+
+            # Build the same folder structure: EXTERN_DATA_DIR/YEAR/MONTH/PROJECT_DIR
+            ext_data_year_path = Path(extern_data_dir).resolve() / self.YEAR
+            ext_data_month_path = ext_data_year_path / self.MONTH
+            self.EXTERN_DATA_DIR = ext_data_month_path / project_dir
 
         # Do we use git?
         self.use_git = use_git
@@ -203,6 +216,8 @@ class Project:
         self.CODE_NOTEBOOKS_PATH.mkdir(parents=True, exist_ok=True)
         self.CODE_ILASTIK_PATH.mkdir(parents=True, exist_ok=True)
         self.REFERENCES_PATH.mkdir(parents=True, exist_ok=True)
+        if self.EXTERN_DATA_DIR != "":
+            self.EXTERN_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
     def _get_and_store_git_path(self):
         """Try to get and store git's path."""

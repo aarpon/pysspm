@@ -78,6 +78,9 @@ def create(
         )
         raise typer.Exit()
 
+    # Extern data dir
+    extern_data_dir = CONFIG_MANAGER["projects.external_data"]
+
     # Get last used project id
     last_id = MetadataManager.get_last_id(projects_location)
 
@@ -103,6 +106,7 @@ def create(
         use_git=use_git,
         git_path=git_path,
         extern_git_repos=extern_git_repos,
+        extern_data_dir=extern_data_dir
     )
 
     # Initialize the project
