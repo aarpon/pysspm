@@ -86,6 +86,23 @@ class MetadataParser:
         """Return the list of metadata keys."""
         return self.valid_keys
 
+    def read(self):
+        """Read the metadata file."""
+
+        # Read it
+        if self._metadata is None:
+            return {}
+        self._metadata.read(self._metadata_file)
+
+        metadata_dict = {}
+        for section in self._metadata.sections():
+            if section == "metadata":
+                continue
+            for option in self._metadata[section]:
+                key = f"{section}.{option}"
+                metadata_dict[key] = self._metadata[section][option]
+        return metadata_dict
+
     def write(self) -> bool:
         """Save the metadata file."""
 

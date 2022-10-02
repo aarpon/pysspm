@@ -5,23 +5,25 @@ from datetime import date
 from pathlib import Path
 from typing import Optional
 
+from pyspm.metadata import MetadataParser
+
 
 class Project:
     """Class Project that takes care of initializing all project information and filesystem structure."""
 
     def __init__(
-        self,
-        parent_dir: str,
-        project_dir: str,
-        project_title: str,
-        user_name: str,
-        user_email: str,
-        user_group: str,
-        project_short_descr: str,
-        use_git: bool = True,
-        git_path: str = "",
-        extern_git_repos: str = "",
-        extern_data_dir: str = "",
+            self,
+            parent_dir: str,
+            project_dir: str,
+            project_title: str,
+            user_name: str,
+            user_email: str,
+            user_group: str,
+            project_short_descr: str,
+            use_git: bool = True,
+            git_path: str = "",
+            extern_git_repos: str = "",
+            extern_data_dir: str = "",
     ):
         """Instantiate a Project object.
 
@@ -101,7 +103,6 @@ class Project:
         # Was there an external data directory specified?
         self.EXTERN_DATA_DIR = ""
         if extern_data_dir != "":
-
             # Build the same folder structure: EXTERN_DATA_DIR/YEAR/MONTH/PROJECT_DIR
             ext_data_year_path = Path(extern_data_dir).resolve() / self.YEAR
             ext_data_month_path = ext_data_year_path / self.MONTH
@@ -334,22 +335,18 @@ class Project:
     def _write_metadata_to_file(self):
         """Write metadata to file metadata/info.md."""
 
-        # Add some simple metadata information
-        filename = self.METADATA_PATH / "info.md"
-        if not filename.is_file():
-            # Do not overwrite if it already exists
-            with open(filename, "w", encoding="utf-8") as f:
-                f.write("# " + self.PROJECT_TITLE + "\n")
-                f.write("**Start date**: " + self.TODAY.strftime("%d/%m/%Y") + "\n")
-                f.write("**Status**: new\n")
-                f.write("**End date**:\n")
-                f.write("## User information\n")
-                f.write("**Name**: " + self.USER_NAME + "\n")
-                f.write("**E-mail**: " + self.USER_EMAIL + "\n")
-                f.write("**Group**: " + self.USER_GROUP + "\n")
-                f.write("**Collaborators**: \n\n")
-                f.write("## Description\n")
-                f.write(self.PROJECT_DESCRIPTION + "\n")
+        # Store metadata information
+        metadata_parser = MetadataParser(self.PROJECT_ROOT_DIR)
+        metadata_parser["project.title"] = self.PROJECT_TITLE
+        metadata_parser["project.start_date"] = self.TODAY.strftime("%d/%m/%Y")
+        metadata_parser["project.end_date"] = ""
+        metadata_parser["project.status"] = "new"
+        metadata_parser["project.description"] = self.PROJECT_DESCRIPTION
+        metadata_parser["user.name"] = self.USER_NAME
+        metadata_parser["user.email"] = self.USER_EMAIL
+        metadata_parser["user.group"] = self.USER_GROUP
+        metadata_parser["user.collaborators"] = ""
+        metadata_parser.write()
 
 
 class ProjectManager(object):
@@ -377,52 +374,28 @@ class ProjectManager(object):
                 for candidate_project_folder in Path(month_folder).iterdir():
 
                     if project_id is not None:
-                        if not project_id in Path(candidate_project_folder).name:
+                        if project_id not in Path(candidate_project_folder).name:
                             continue
 
-                    metadata_file = candidate_project_folder / "metadata" / "info.md"
+                    metadata_file = candidate_project_folder / "metadata" / "metadata.ini"
                     if metadata_file.is_file():
                         try:
-                            with open(metadata_file, "r", encoding="utf-8") as f:
-                                title = ""
-                                user = ""
-                                email = ""
-                                group = ""
-                                status = ""
-                                for line in f:
-                                    line = line.strip()
-                                    if line.startswith("# "):
-                                        title = line[2:].strip()
-                                    if line.startswith("**Status**: "):
-                                        status = line[12:]
-                                    if line.startswith("**Name**: "):
-                                        user = line[10:]
-                                    if line.startswith("**E-mail**: "):
-                                        email = line[12:]
-                                    if line.startswith("**Group**: "):
-                                        group = line[11:]
-                                    if (
-                                        title != ""
-                                        and status != ""
-                                        and user != ""
-                                        and email != ""
-                                        and group != ""
-                                    ):
-                                        break
+                            metadata_parser = MetadataParser(candidate_project_folder)
+                            metadata = metadata_parser.read()
 
-                                # Add project data
-                                project_data.append(
-                                    [
-                                        year_folder.name,
-                                        month_folder.name,
-                                        candidate_project_folder.name,
-                                        title,
-                                        user,
-                                        email,
-                                        group,
-                                        status,
-                                    ]
-                                )
+                            # Add project data
+                            project_data.append(
+                                [
+                                    year_folder.name,
+                                    month_folder.name,
+                                    candidate_project_folder.name,
+                                    metadata["project.title"],
+                                    metadata["user.name"],
+                                    metadata["user.email"],
+                                    metadata["user.email"],
+                                    metadata["project.status"],
+                                ]
+                            )
                         except Exception as e:
                             print(e)
 
