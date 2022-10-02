@@ -12,18 +12,18 @@ class Project:
     """Class Project that takes care of initializing all project information and filesystem structure."""
 
     def __init__(
-            self,
-            parent_dir: str,
-            project_dir: str,
-            project_title: str,
-            user_name: str,
-            user_email: str,
-            user_group: str,
-            project_short_descr: str,
-            use_git: bool = True,
-            git_path: str = "",
-            extern_git_repos: str = "",
-            extern_data_dir: str = "",
+        self,
+        parent_dir: str,
+        project_dir: str,
+        project_title: str,
+        user_name: str,
+        user_email: str,
+        user_group: str,
+        project_short_descr: str,
+        use_git: bool = True,
+        git_path: str = "",
+        extern_git_repos: str = "",
+        extern_data_dir: str = "",
     ):
         """Instantiate a Project object.
 
@@ -154,6 +154,9 @@ class Project:
 
         # Write metadata to file
         self._write_metadata_to_file()
+
+        # Write description to a separate file
+        self._write_description_to_file()
 
         # Init git repository
         self._init_git_repo()
@@ -333,7 +336,7 @@ class Project:
         os.chdir(curr_path)
 
     def _write_metadata_to_file(self):
-        """Write metadata to file metadata/info.md."""
+        """Write metadata to hidden file metadata/.metadata.ini."""
 
         # Store metadata information
         metadata_parser = MetadataParser(self.PROJECT_ROOT_DIR)
@@ -341,12 +344,24 @@ class Project:
         metadata_parser["project.start_date"] = self.TODAY.strftime("%d/%m/%Y")
         metadata_parser["project.end_date"] = ""
         metadata_parser["project.status"] = "new"
-        metadata_parser["project.description"] = self.PROJECT_DESCRIPTION
         metadata_parser["user.name"] = self.USER_NAME
         metadata_parser["user.email"] = self.USER_EMAIL
         metadata_parser["user.group"] = self.USER_GROUP
         metadata_parser["user.collaborators"] = ""
         metadata_parser.write()
+
+    def _write_description_to_file(self):
+        """Write project description to metadata/description.md."""
+
+        # Since the description can be verbose and with formatting,
+        # we write it to a comma-separated value file.
+
+        filename = self.METADATA_PATH / "description.md"
+        if not filename.is_file():
+            # Do not overwrite if it already exists
+            with open(filename, "w", encoding="utf-8") as f:
+                f.write("# Project description\n")
+                f.write(self.PROJECT_DESCRIPTION + "\n")
 
 
 class ProjectManager(object):
@@ -377,7 +392,9 @@ class ProjectManager(object):
                         if project_id not in Path(candidate_project_folder).name:
                             continue
 
-                    metadata_file = candidate_project_folder / "metadata" / "metadata.ini"
+                    metadata_file = (
+                        candidate_project_folder / "metadata" / ".metadata.ini"
+                    )
                     if metadata_file.is_file():
                         try:
                             metadata_parser = MetadataParser(candidate_project_folder)

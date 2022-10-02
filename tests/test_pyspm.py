@@ -3,7 +3,7 @@ import re
 from typer.testing import CliRunner
 
 from pyspm import __version__
-from pyspm.cli import app, CONFIG_PARSER
+from pyspm.cli import CONFIG_PARSER, app
 from pyspm.project import ProjectManager
 
 # Instantiate a CliRunner object to be able to test the cli app
