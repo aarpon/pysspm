@@ -9,7 +9,9 @@ def show(filter: str = ""):
     """Show all statistics, possibly filtered."""
     typer.echo(
         typer.style(
-            "Sorry, this function has not yet been implemented.", fg=typer.colors.RED, bold=True
+            "Sorry, this function has not yet been implemented.",
+            fg=typer.colors.RED,
+            bold=True,
         )
     )
     raise typer.Exit()

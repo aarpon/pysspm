@@ -106,7 +106,7 @@ def create(
         use_git=use_git,
         git_path=git_path,
         extern_git_repos=extern_git_repos,
-        extern_data_dir=extern_data_dir
+        extern_data_dir=extern_data_dir,
     )
 
     # Initialize the project

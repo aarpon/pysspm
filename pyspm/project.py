@@ -21,7 +21,7 @@ class Project:
         use_git: bool = True,
         git_path: str = "",
         extern_git_repos: str = "",
-        extern_data_dir: str = ""
+        extern_data_dir: str = "",
     ):
         """Instantiate a Project object.
 
