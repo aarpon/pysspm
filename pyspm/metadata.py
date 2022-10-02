@@ -36,7 +36,7 @@ class MetadataParser:
         self._metadata_path = Path(project_folder) / "metadata"
 
         # Metadata file name
-        self._metadata_file = self._metadata_path / ".metadata.ini"
+        self._metadata_file = self._metadata_path / "metadata.ini"
 
         # If the metadata file does not exist yet, create a default one
         if not self._metadata_file.is_file():

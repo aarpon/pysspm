@@ -336,7 +336,7 @@ class Project:
         os.chdir(curr_path)
 
     def _write_metadata_to_file(self):
-        """Write metadata to hidden file metadata/.metadata.ini."""
+        """Write metadata to file metadata/metadata.ini."""
 
         # Store metadata information
         metadata_parser = MetadataParser(self.PROJECT_ROOT_DIR)
@@ -393,7 +393,7 @@ class ProjectManager(object):
                             continue
 
                     metadata_file = (
-                        candidate_project_folder / "metadata" / ".metadata.ini"
+                        candidate_project_folder / "metadata" / "metadata.ini"
                     )
                     if metadata_file.is_file():
                         try:
