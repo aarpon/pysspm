@@ -4,8 +4,8 @@ from pathlib import Path
 from pyspm.util import Singleton
 
 
-class ConfigurationManager(object, metaclass=Singleton):
-    """Configuration manager (singleton class)."""
+class ConfigurationParser(object, metaclass=Singleton):
+    """Configuration parser (singleton class)."""
 
     def __init__(self):
         """Constructor.
@@ -129,7 +129,7 @@ class ConfigurationManager(object, metaclass=Singleton):
             self._config.write(configfile)
 
 
-class MetadataManager(object):
+class GlobalMetadataManager(object):
     """Project metadata manager (static class)."""
 
     @staticmethod
@@ -155,7 +155,7 @@ class MetadataManager(object):
         """Update the last project id."""
 
         # Get the last id
-        last_id = MetadataManager.get_last_id(projects_location)
+        last_id = GlobalMetadataManager.get_last_id(projects_location)
         next_id = last_id + 1
         projects_metadata = Path(projects_location) / ".projects"
         with open(projects_metadata, "w", encoding="utf-8") as f:

@@ -8,11 +8,11 @@ from typing import Optional
 import typer
 from tabulate import tabulate
 
-from pyspm.config import ConfigurationManager, MetadataManager
+from pyspm.config import ConfigurationParser, GlobalMetadataManager
 from pyspm.project import Project, ProjectManager
 
 # Load configuration (singleton)
-CONFIG_MANAGER = ConfigurationManager()
+CONFIG_PARSER = ConfigurationParser()
 
 # Instantiate Typer
 app = typer.Typer(name="project", help="Manage projects.")
@@ -30,7 +30,7 @@ def create(
     """Create a new project."""
 
     # Check that we have a valid configuration
-    if not CONFIG_MANAGER.is_valid:
+    if not CONFIG_PARSER.is_valid:
         typer.echo(
             typer.style(
                 "Error: spm is not configured yet.", fg=typer.colors.RED, bold=True
@@ -67,7 +67,7 @@ def create(
     #
 
     # Projects location (root dir)
-    projects_location = CONFIG_MANAGER["projects.location"]
+    projects_location = CONFIG_PARSER["projects.location"]
     if projects_location == "":
         typer.echo(
             typer.style(
@@ -79,10 +79,10 @@ def create(
         raise typer.Exit()
 
     # Extern data dir
-    extern_data_dir = CONFIG_MANAGER["projects.external_data"]
+    extern_data_dir = CONFIG_PARSER["projects.external_data"]
 
     # Get last used project id
-    last_id = MetadataManager.get_last_id(projects_location)
+    last_id = GlobalMetadataManager.get_last_id(projects_location)
 
     # Update the id
     project_id = last_id + 1
@@ -91,8 +91,8 @@ def create(
     project_dir = f"P_{project_id:04}"
 
     # Use git?
-    use_git = CONFIG_MANAGER["tools.use_git"] == "True"
-    git_path = CONFIG_MANAGER["tools.git_path"]
+    use_git = CONFIG_PARSER["tools.use_git"] == "True"
+    git_path = CONFIG_PARSER["tools.git_path"]
 
     # Instantiate the project
     project = Project(
@@ -113,7 +113,7 @@ def create(
     project.init()
 
     # Update the last project ID
-    MetadataManager.update_last_id(projects_location)
+    GlobalMetadataManager.update_last_id(projects_location)
 
     # Inform
     typer.echo(
@@ -134,7 +134,7 @@ def show(
     """List all projects."""
 
     # Check that we have a valid configuration
-    if not CONFIG_MANAGER.is_valid:
+    if not CONFIG_PARSER.is_valid:
         typer.echo(
             typer.style(
                 "Error: spm is not configured yet.", fg=typer.colors.RED, bold=True
@@ -144,7 +144,7 @@ def show(
 
     # Retrieve the projects table
     project_data, headers = ProjectManager.get_projects(
-        CONFIG_MANAGER["projects.location"], project_id
+        CONFIG_PARSER["projects.location"], project_id
     )
 
     if len(project_data) == 0:
@@ -165,7 +165,7 @@ def open_folder(
     """Open a requested or all projects folder in the system's file explorer."""
 
     # Check that we have a valid configuration
-    if not CONFIG_MANAGER.is_valid:
+    if not CONFIG_PARSER.is_valid:
         typer.echo(
             typer.style(
                 "Error: spm is not configured yet.", fg=typer.colors.RED, bold=True
@@ -174,10 +174,10 @@ def open_folder(
         raise typer.Exit()
 
     if project_id is None:
-        folder_to_open = CONFIG_MANAGER["projects.location"]
+        folder_to_open = CONFIG_PARSER["projects.location"]
     else:
         folder_to_open = ProjectManager.get_project_path_by_id(
-            CONFIG_MANAGER["projects.location"], project_id
+            CONFIG_PARSER["projects.location"], project_id
         )
 
     # Project not found. Inform and return

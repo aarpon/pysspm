@@ -4,10 +4,10 @@ import pyspm.cli_config as command_config
 import pyspm.cli_project as command_project
 import pyspm.cli_stats as command_stats
 from pyspm import __version__
-from pyspm.config import ConfigurationManager
+from pyspm.config import ConfigurationParser
 
 # Load configuration (singleton)
-CONFIG_MANAGER = ConfigurationManager()
+CONFIG_PARSER = ConfigurationParser()
 
 # Instantiate Typer
 app = typer.Typer(no_args_is_help=True)
@@ -30,5 +30,5 @@ def main():
 
 
 if __name__ == "__main__":
-    typer.echo(CONFIG_MANAGER)
+    typer.echo(CONFIG_PARSER)
     app()

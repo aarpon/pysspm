@@ -1,7 +1,7 @@
-from pyspm.config import ConfigurationManager
+from pyspm.config import ConfigurationParser
 
 # Load configuration (singleton)
-CONFIG_MANAGER = ConfigurationManager()
+CONFIG_PARSER = ConfigurationParser()
 
 
 class Stats:
