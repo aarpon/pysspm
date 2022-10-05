@@ -9,6 +9,7 @@ import typer
 from tabulate import tabulate
 
 from pyspm.config import ConfigurationParser, GlobalMetadataManager
+from pyspm.metadata import MetadataParser
 from pyspm.project import Project, ProjectManager
 
 # Load configuration (singleton)
@@ -249,6 +250,149 @@ def open_folder(
                 f"Sorry, your platform is not supported.",
                 fg=typer.colors.RED,
                 bold=True,
+            )
+        )
+        raise typer.Exit()
+
+
+@app.command("get")
+def get_metadata(
+    project_id: str = typer.Argument(default=None, help="ID of the project to query."),
+    metadata_key: str = typer.Argument(
+        default="project.title", help="Key of the metadata value to retrieve."
+    ),
+):
+    """Get value for the requested metadata key of given project."""
+
+    # Project not found. Inform and return
+    if project_id is None:
+        typer.echo(
+            typer.style(
+                f"Error: please specify the ID of the project to query.",
+                fg=typer.colors.RED,
+                bold=True,
+            )
+        )
+        raise typer.Exit()
+
+    # Check that we have a valid configuration
+    if not CONFIG_PARSER.is_valid:
+        typer.echo(
+            typer.style(
+                "Error: spm is not configured yet.", fg=typer.colors.RED, bold=True
+            )
+        )
+        raise typer.Exit()
+
+    # Try to find the requested project
+    project_folder = ProjectManager.get_project_path_by_id(
+        CONFIG_PARSER["projects.location"], project_id
+    )
+
+    # Project not found. Inform and return
+    if project_folder == "":
+        typer.echo(
+            typer.style(
+                f"Error: could not find a folder for project {project_id}. "
+                + f"Make sure to spell the complete ID.",
+                fg=typer.colors.RED,
+                bold=True,
+            )
+        )
+        raise typer.Exit()
+
+    # Now initialize the metadata parser
+    metadata_parser = MetadataParser(project_folder)
+
+    # Try to get the requested metadata value
+    try:
+        metadata_value = metadata_parser[metadata_key]
+        typer.echo(f"{metadata_value}")
+    except ValueError as _:
+        valid_keys = metadata_parser.keys
+        valid_keys.remove("metadata.version")
+        typer.echo(
+            typer.style(
+                f"Error: the specified metadata key '{metadata_key}' is not recognized. "
+                f"Valid metadata keys are {metadata_parser.keys}",
+                fg=typer.colors.RED,
+                bold=True,
+            )
+        )
+        raise typer.Exit()
+
+
+@app.command("set")
+def set_metadata(
+    project_id: str = typer.Argument(default=None, help="ID of the project to query."),
+    metadata_key: str = typer.Argument(
+        default="project.title", help="Key of the metadata value to retrieve."
+    ),
+    metadata_value: str = typer.Argument(
+        default="", help="Value for the specified metadata key."
+    ),
+):
+    """Set value for the specified metadata key of given project."""
+
+    # Project not found. Inform and return
+    if project_id is None:
+        typer.echo(
+            typer.style(
+                f"Error: please specify the ID of the project to query.",
+                fg=typer.colors.RED,
+                bold=True,
+            )
+        )
+        raise typer.Exit()
+
+    # Check that we have a valid configuration
+    if not CONFIG_PARSER.is_valid:
+        typer.echo(
+            typer.style(
+                "Error: spm is not configured yet.", fg=typer.colors.RED, bold=True
+            )
+        )
+        raise typer.Exit()
+
+    # Try to find the requested project
+    project_folder = ProjectManager.get_project_path_by_id(
+        CONFIG_PARSER["projects.location"], project_id
+    )
+
+    # Project not found. Inform and return
+    if project_folder == "":
+        typer.echo(
+            typer.style(
+                f"Error: could not find a folder for project {project_id}. "
+                + f"Make sure to spell the complete ID.",
+                fg=typer.colors.RED,
+                bold=True,
+            )
+        )
+        raise typer.Exit()
+
+    # Now initialize the metadata parser
+    metadata_parser = MetadataParser(project_folder)
+
+    # Can the value be empty?
+    if metadata_value == "" and not metadata_parser.can_be_empty(metadata_key):
+        typer.echo(
+            typer.style(
+                f"Error: the metadata key {metadata_key} can not be set to empty!",
+                fg=typer.colors.RED,
+                bold=True,
+            )
+        )
+        raise typer.Exit()
+
+    # Try to set the requested metadata value
+    try:
+        metadata_parser[metadata_key] = metadata_value
+    except ValueError as e:
+        typer.echo(
+            typer.style(
+                f"Error: could not set metadata key '{metadata_key}'. "
+                f"The error was: {e}"
             )
         )
         raise typer.Exit()

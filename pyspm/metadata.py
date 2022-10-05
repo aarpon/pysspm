@@ -65,6 +65,9 @@ class MetadataParser:
             raise ValueError(f"Invalid metadata key '{item}'.")
         if parts[1] not in self._metadata[parts[0]]:
             raise ValueError(f"Invalid metadata key '{item}'.")
+        if value == "" and not self.can_be_empty(item):
+            raise ValueError(f"Item {item} can not be set to ''.")
+        # Set the value for the requested item
         self._metadata[parts[0]][parts[1]] = value
 
         # Write the metadata file
@@ -81,9 +84,24 @@ class MetadataParser:
         """Check current metadata values."""
         return self._validate()
 
+    @property
     def keys(self) -> list:
         """Return the list of metadata keys."""
         return self.valid_keys
+
+    def can_be_empty(self, metadata_key) -> bool:
+        """Return True if requested metadata can be set to empty."""
+
+        settable_keys = self.valid_keys.copy()
+        settable_keys.remove("metadata.version")
+
+        if metadata_key not in settable_keys:
+            raise ValueError("The requested metadata key is not recognized.")
+
+        if metadata_key == "user.collaborators" or metadata_key == "project.end_date":
+            return True
+
+        return False
 
     def read(self):
         """Read the metadata file."""
