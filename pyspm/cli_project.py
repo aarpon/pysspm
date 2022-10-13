@@ -144,15 +144,20 @@ def show(
         raise typer.Exit()
 
     # Retrieve the projects table
-    project_data, headers = ProjectManager.get_projects(
+    project_dataframe = ProjectManager.get_projects(
         CONFIG_PARSER["projects.location"], project_id
     )
 
-    if len(project_data) == 0:
+    if project_dataframe is None:
         typer.echo("No projects found.")
         return
     else:
-        table = tabulate(project_data, headers=headers, tablefmt="fancy_grid")
+        table = tabulate(
+            project_dataframe,
+            headers=project_dataframe.columns,
+            showindex=False,
+            tablefmt="fancy_grid",
+        )
         typer.echo(table)
 
 

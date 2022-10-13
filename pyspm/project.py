@@ -5,6 +5,8 @@ from datetime import date
 from pathlib import Path
 from typing import Optional
 
+import pandas as pd
+
 from pyspm.metadata import MetadataParser
 
 
@@ -409,7 +411,7 @@ class ProjectManager(object):
                                     metadata["project.title"],
                                     metadata["user.name"],
                                     metadata["user.email"],
-                                    metadata["user.email"],
+                                    metadata["user.group"],
                                     metadata["project.status"],
                                 ]
                             )
@@ -427,7 +429,10 @@ class ProjectManager(object):
             "Status",
         ]
 
-        return project_data, headers
+        if len(project_data) == 0:
+            return None
+
+        return pd.DataFrame(data=project_data, columns=headers)
 
     @staticmethod
     def get_project_path_by_id(projects_folder: Path, project_id: str) -> str:
