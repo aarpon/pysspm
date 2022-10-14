@@ -21,14 +21,19 @@ app = typer.Typer(name="project", help="Manage projects.")
 
 @app.command("create")
 def create(
-    title: str = None,
-    user_name: str = None,
-    user_email: str = None,
-    user_group: str = None,
-    short_descr: str = None,
-    extern_git_repos: str = None,
+    title: str = typer.Option(default=None, help="Title of the project."),
+    user_name: str = typer.Option(default=None, help="User's first and family name."),
+    user_email: str = typer.Option(default=None, help="User's e-mail address."),
+    user_group: str = typer.Option(default=None, help="User's group."),
+    short_descr: str = typer.Option(
+        default=None, help='Short description of the project. Set to "" to skip.'
+    ),
+    extern_git_repos: str = typer.Option(
+        default=None,
+        help='List of remote git repositories in the form "name_1|url_1;name_2|url_2".  Set to "" to skip.',
+    ),
 ):
-    """Create a new project."""
+    """Create a new project. Just call `spm project create` for interactive input."""
 
     # Check that we have a valid configuration
     if not CONFIG_PARSER.is_valid:
