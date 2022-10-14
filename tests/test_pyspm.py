@@ -1,5 +1,9 @@
 import re
+import shutil
+import tempfile
+from pathlib import Path
 
+import pytest
 from typer.testing import CliRunner
 
 from pyspm import __version__
@@ -10,21 +14,53 @@ from pyspm.project import ProjectManager
 runner = CliRunner()
 
 
-def test_version():
-    assert __version__ == "0.1.0"
+@pytest.fixture(autouse=False)
+def run_before_and_after_tests(tmpdir):
+    """Fixture to execute asserts before and after a test is run"""
+
+    #
+    # Setup
+    #
+
+    # First, make sure not to modify current config
+    conf_file = Path(Path.home(), ".config/pyspm/pyspm.ini")
+    restore_config = False
+    bkp_conf_file = None
+    if conf_file.is_file():
+        bkp_conf_file = conf_file.parent / f"{conf_file.stem}_BACKUP.ini"
+        shutil.copyfile(conf_file, bkp_conf_file)
+        if bkp_conf_file.is_file():
+            conf_file.unlink()
+        restore_config = True
+
+    yield  # This is where the testing happens
+
+    #
+    # Teardown
+    #
+
+    # If needed, restore the original configuration file
+    if restore_config and bkp_conf_file is not None:
+        shutil.copyfile(bkp_conf_file, conf_file)
+        bkp_conf_file.unlink()
 
 
-def test_app_init():
+def test_cli(run_before_and_after_tests):
+    # Reset the configuration
+    result = runner.invoke(app, ["config", "reset"])
+    assert result.exit_code == 0
+    conf_file = Path(Path.home(), ".config/pyspm/pyspm.ini")
+    assert conf_file.is_file()
+
+    # Check the version
     result = runner.invoke(app, ["version"])
     assert result.exit_code == 0
     assert result.output == f"Simple (scientific) Project Manager v{__version__}\n"
 
-
-def test_set_config_value():
-    # Retrieve current value
+    # Get the projects.location config value: it should be empty
     result = runner.invoke(app, ["config", "get", "projects.location"])
     assert result.exit_code == 0
-    current_value = re.search("projects.location = (.+?)\n", result.output).group(1)
+    assert result.output == "projects.location = \n"
 
     # Replace it with a new value and check that the new value is saved
     test_value = "/Users/aaron/Project"
@@ -36,14 +72,82 @@ def test_set_config_value():
     new_value = re.search("projects.location = (.+?)\n", result.output).group(1)
     assert test_value == new_value
 
-    # Restore original value
-    result = runner.invoke(app, ["config", "set", "projects.location", current_value])
-    assert result.exit_code == 0
+    # Create a couple of projects in a temporary directory
+    with tempfile.TemporaryDirectory() as temp_project_dir:
+        # Create and assign a temporary directory for tests
+        result = runner.invoke(
+            app, ["config", "set", "projects.location", temp_project_dir]
+        )
+        assert result.exit_code == 0
 
+        # Check that there are no projects
+        result = runner.invoke(app, ["project", "list"])
+        assert result.exit_code == 0
+        print(result.output == "No projects found.\n")
 
-def test_get_project_list():
-    # Retrieve the projects table
-    project_data, headers = ProjectManager.get_projects(
-        CONFIG_PARSER["projects.location"], None
-    )
-    assert len(project_data) > 0
+        # Also check using the ProjectManager
+        project_data_frame = ProjectManager.get_projects(
+            CONFIG_PARSER["projects.location"]
+        )
+        assert project_data_frame is None
+
+        # Add a project
+        result = runner.invoke(
+            app,
+            [
+                "project",
+                "create",
+                "--title",
+                "Project A",
+                "--user-name",
+                "John Doe",
+                "--user-email",
+                "john.doe@example.com",
+                "--user-group",
+                "Group 1",
+                "--short-descr",
+                "",
+                "--extern-git-repos",
+                "",
+            ],
+        )
+        assert result.exit_code == 0
+
+        # Get the list of projects using the ProjectManager
+        project_data_frame = ProjectManager.get_projects(
+            CONFIG_PARSER["projects.location"]
+        )
+        assert len(project_data_frame.index) == 1
+
+        # Add another project
+        result = runner.invoke(
+            app,
+            [
+                "project",
+                "create",
+                "--title",
+                "Project B",
+                "--user-name",
+                "Jane Morris",
+                "--user-email",
+                "jane.morris@example.com",
+                "--user-group",
+                "Group 2",
+                "--short-descr",
+                "",
+                "--extern-git-repos",
+                "",
+            ],
+        )
+        assert result.exit_code == 0
+
+        # Get the list of projects using the ProjectManager
+        project_data_frame = ProjectManager.get_projects(
+            CONFIG_PARSER["projects.location"]
+        )
+        assert len(project_data_frame.index) == 2
+
+        # Get some statistics
+        result = runner.invoke(app, ["stats", "show"])
+        assert result.exit_code == 0
+        assert len(result.stdout_bytes) == 481

@@ -11,7 +11,7 @@ app = typer.Typer(name="config", help="Manage configuration options.")
 
 
 @app.command("location")
-def show():
+def location():
     """Show full path of configuration file."""
     if not CONFIG_PARSER.is_valid:
         typer.echo(
@@ -38,6 +38,12 @@ def show():
         )
         for key in CONFIG_PARSER.keys():
             typer.echo(f"{key} = {CONFIG_PARSER[key]}")
+
+
+@app.command("reset")
+def reset():
+    """Reset configuration file."""
+    CONFIG_PARSER.reset()
 
 
 @app.command("set")

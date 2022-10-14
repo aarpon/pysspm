@@ -1,4 +1,6 @@
 import configparser
+import shutil
+from datetime import datetime
 from pathlib import Path
 
 from pyspm.util import Singleton
@@ -42,6 +44,16 @@ class ConfigurationParser(object, metaclass=Singleton):
         if self._config is None:
             self._config = configparser.ConfigParser()
         self._config.read(self._conf_file)
+
+    def reset(self):
+        """Reset the configuration to default values."""
+        if self._conf_file.is_file():
+            timestamp = datetime.strftime(datetime.now(), "%d%m%Y_%H%M%S")
+            backup_file_name = (
+                self._conf_file.parent / f"{self._conf_file.stem}_{timestamp}.ini"
+            )
+            shutil.copyfile(self._conf_file, backup_file_name)
+        self._write_default()
 
     def __getitem__(self, item):
         """Get item for current key."""
