@@ -74,3 +74,9 @@ def get(key: str):
                 bold=True,
             )
         )
+
+
+@app.command("keys")
+def keys():
+    """Show the list of valid configuration keys."""
+    typer.echo(f"Valid configuration keys are : {CONFIG_PARSER.valid_keys}.")
