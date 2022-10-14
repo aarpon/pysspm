@@ -36,7 +36,7 @@ def show():
             project_dataframe.groupby(["Year", "Group"])
             .size()
             .reset_index(name="Count")
-        )
+        ).sort_values(by="Year", ascending=False)
         table = tabulate(
             df_grouped,
             headers=["Year", "Group", "Count"],
