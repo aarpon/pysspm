@@ -3,7 +3,7 @@ import subprocess
 import sys
 from datetime import date
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 import pandas as pd
 
@@ -370,7 +370,7 @@ class ProjectManager(object):
     """Project manager (static class)."""
 
     @staticmethod
-    def get_projects(projects_folder: Path, project_id: Optional[str] = None) -> tuple:
+    def get_projects(projects_folder: Path, project_id: Optional[str] = None) -> Union[None, pd.DataFrame]:
         """Return the list of projects."""
 
         # Retrieve all sub-folders that map to valid years
@@ -405,8 +405,8 @@ class ProjectManager(object):
                             # Add project data
                             project_data.append(
                                 [
-                                    year_folder.name,
-                                    month_folder.name,
+                                    int(year_folder.name),
+                                    int(month_folder.name),
                                     candidate_project_folder.name,
                                     metadata["project.title"],
                                     metadata["user.name"],
@@ -432,7 +432,9 @@ class ProjectManager(object):
         if len(project_data) == 0:
             return None
 
-        return pd.DataFrame(data=project_data, columns=headers)
+        df = pd.DataFrame(data=project_data, columns=headers)
+        df.sort_values(by=["Year", "Month", "ID"], ascending=True, inplace=True, ignore_index=True)
+        return df
 
     @staticmethod
     def get_project_path_by_id(projects_folder: Path, project_id: str) -> str:
