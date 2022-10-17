@@ -99,6 +99,7 @@ def create(
     # Use git?
     use_git = CONFIG_PARSER["tools.use_git"] == "True"
     git_path = CONFIG_PARSER["tools.git_path"]
+    git_ignore_data = CONFIG_PARSER["tools.git_ignore_data"] == "True"
 
     # Instantiate the project
     project = Project(
@@ -112,6 +113,7 @@ def create(
         use_git=use_git,
         git_path=git_path,
         extern_git_repos=extern_git_repos,
+        git_ignore_data=git_ignore_data,
         extern_data_dir=extern_data_dir,
     )
 

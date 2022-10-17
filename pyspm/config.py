@@ -17,7 +17,7 @@ class ConfigurationParser(object, metaclass=Singleton):
         """
 
         # Current version
-        self._version = 0
+        self._version = 1
 
         # Valid keys
         self.valid_keys = [
@@ -25,6 +25,7 @@ class ConfigurationParser(object, metaclass=Singleton):
             "projects.external_data",
             "tools.git_path",
             "tools.use_git",
+            "tools.git_ignore_data"
         ]
 
         # Configuration parser
@@ -132,6 +133,7 @@ class ConfigurationParser(object, metaclass=Singleton):
         self._config["tools"] = {}
         self._config["tools"]["git_path"] = ""
         self._config["tools"]["use_git"] = "True"
+        self._config["tools"]["git_ignore_data"] = "True"
 
         # Make sure the .config/obit folder exists
         Path(self._conf_path).mkdir(exist_ok=True)

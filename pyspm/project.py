@@ -25,6 +25,7 @@ class Project:
         use_git: bool = True,
         git_path: str = "",
         extern_git_repos: str = "",
+        git_ignore_data: bool = True,
         extern_data_dir: str = "",
     ):
         """Instantiate a Project object.
@@ -61,6 +62,9 @@ class Project:
 
         extern_git_repos: str
             List of extern git repositories in the form "name_1|url_1;name_2|url_2". Leave empty to omit.
+
+        git_ignore_data: bool
+            Whether to add the data folder to .gitignore.
 
         extern_data_dir: str
             Optional path to an external data directory.
@@ -122,6 +126,9 @@ class Project:
             self._get_and_store_git_path()
         else:
             self.set_git_path(git_path)
+
+        # Should we ignore the data folder?
+        self.git_ignore_data = git_ignore_data
 
     @property
     def full_path(self):
@@ -264,7 +271,8 @@ class Project:
         if not filename.is_file():
             # Do not overwrite if it already exists
             with open(filename, "w", encoding="utf-8") as f:
-                f.write("/data/\n")
+                if self.git_ignore_data:
+                    f.write("/data/\n")
                 f.write(".ipynb_checkpoints/")
                 f.write("__pycache__/")
                 f.write(".pytest_cache/")
