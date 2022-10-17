@@ -40,12 +40,6 @@ def show():
             typer.echo(f"{key} = {CONFIG_PARSER[key]}")
 
 
-@app.command("reset")
-def reset():
-    """Reset configuration file."""
-    CONFIG_PARSER.reset()
-
-
 @app.command("set")
 def set(item: str, value: str):
     """Set the option with specified name to the passed value."""

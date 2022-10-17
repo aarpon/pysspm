@@ -47,8 +47,7 @@ def run_before_and_after_tests(tmpdir):
 
 def test_cli(run_before_and_after_tests):
     # Reset the configuration
-    result = runner.invoke(app, ["config", "reset"])
-    assert result.exit_code == 0
+    CONFIG_PARSER.reset()
     conf_file = Path(Path.home(), ".config/pyspm/pyspm.ini")
     assert conf_file.is_file()
 
@@ -150,4 +149,5 @@ def test_cli(run_before_and_after_tests):
         # Get some statistics
         result = runner.invoke(app, ["stats", "show"])
         assert result.exit_code == 0
-        assert len(result.stdout_bytes) == 481
+        rows = result.stdout.split("\n")
+        assert len(rows) == 8
