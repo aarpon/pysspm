@@ -2,6 +2,7 @@ import os
 import platform
 import re
 import subprocess
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
@@ -260,6 +261,73 @@ def open_folder(
         typer.echo(
             typer.style(
                 f"Sorry, your platform is not supported.",
+                fg=typer.colors.RED,
+                bold=True,
+            )
+        )
+        raise typer.Exit()
+
+
+@app.command("close")
+def close_project(
+    project_id: str = typer.Argument(
+        None,
+        help="ID of the project to close.",
+    ),
+    mode: str = typer.Argument(
+        "now",
+        help='How to close the project. One of "now" or "latest".',
+    ),
+):
+    """Close the requested project either \"now\" or at the date of the \"latest\" modification.
+
+    The `project.end_date` property will be set to the requested date, and the `project.status` property
+    will be set to `completed`.
+    """
+
+    if mode not in ["now", "latest"]:
+        typer.echo(
+            typer.style(
+                f'Error: "mode" must be one of "now" or "latest".',
+                fg=typer.colors.RED,
+                bold=True,
+            )
+        )
+        raise typer.Exit()
+
+    # Check that we have a valid configuration
+    if not CONFIG_PARSER.is_valid:
+        typer.echo(
+            typer.style(
+                "Error: spm is not configured yet.", fg=typer.colors.RED, bold=True
+            )
+        )
+        raise typer.Exit()
+
+    # Get the full path to the requested project ID.
+    project_folder = ProjectManager.get_project_path_by_id(
+        CONFIG_PARSER["projects.location"], project_id
+    )
+
+    # Project not found. Inform and return
+    if project_folder == "":
+        typer.echo(
+            typer.style(
+                f"Error: could not find a folder for project {project_id}. "
+                + f"Make sure to spell the complete ID.",
+                fg=typer.colors.RED,
+                bold=True,
+            )
+        )
+        raise typer.Exit()
+
+    try:
+        ProjectManager.close(project_folder, mode)
+    except Exception as e:
+        typer.echo(
+            typer.style(
+                f"Error: could not close project with ID {project_id}. "
+                + f"Error was: {e}",
                 fg=typer.colors.RED,
                 bold=True,
             )

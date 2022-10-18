@@ -1,7 +1,7 @@
 import os
 import subprocess
 import sys
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 from typing import Optional, Union
 
@@ -378,7 +378,9 @@ class ProjectManager(object):
     """Project manager (static class)."""
 
     @staticmethod
-    def get_projects(projects_folder: Path, project_id: Optional[str] = None) -> Union[None, pd.DataFrame]:
+    def get_projects(
+        projects_folder: Path, project_id: Optional[str] = None
+    ) -> Union[None, pd.DataFrame]:
         """Return the list of projects."""
 
         # Retrieve all sub-folders that map to valid years
@@ -441,7 +443,9 @@ class ProjectManager(object):
             return None
 
         df = pd.DataFrame(data=project_data, columns=headers)
-        df.sort_values(by=["Year", "Month", "ID"], ascending=True, inplace=True, ignore_index=True)
+        df.sort_values(
+            by=["Year", "Month", "ID"], ascending=True, inplace=True, ignore_index=True
+        )
         return df
 
     @staticmethod
@@ -468,7 +472,33 @@ class ProjectManager(object):
         return ""
 
     @staticmethod
-    def _get_year_folders(projects_folder) -> list:
+    def close(project_folder: Union[Path, str], mode: str = "now") -> int:
+        """Close the project, either \"now\" or at the date of the \"latest\" file modification."""
+
+        if mode not in ["now", "latest"]:
+            raise ValueError('"mode" must be one of "now" or "latest".')
+
+        if not Path(project_folder).is_dir():
+            raise IOError(f"Path {project_folder} does not exist.")
+
+        if mode == "now":
+            closing_date = datetime.now().strftime("%Y-%m-%d")
+        else:
+            last_m_time = ProjectManager._get_last_modification_time(project_folder)
+            if last_m_time == -1:
+                # No files found to extract last modification date
+                raise IOError("No files found to extract last modification date.")
+            closing_date = datetime.fromtimestamp(last_m_time).strftime("%Y-%m-%d")
+
+        # Get the metadata of this project
+        metadata_parser = MetadataParser(project_folder)
+
+        # Close the project with this date
+        metadata_parser["project.end_date"] = closing_date
+        metadata_parser["project.status"] = "completed"
+
+    @staticmethod
+    def _get_year_folders(projects_folder: Union[Path, str]) -> list:
         """Scans the projects folder and returns all valid year folders."""
 
         year_subfolders = []
@@ -486,7 +516,7 @@ class ProjectManager(object):
         return year_subfolders
 
     @staticmethod
-    def _get_month_folders(year_folder) -> list:
+    def _get_month_folders(year_folder: Union[Path, str]) -> list:
         """Scans the year folder and returns all valid months folders."""
 
         month_subfolders = []
@@ -504,3 +534,26 @@ class ProjectManager(object):
             month_subfolders.append(subfolder)
 
         return month_subfolders
+
+    @staticmethod
+    def _get_last_modification_time(project_folder: Union[Path, str]) -> int:
+        """Return the last modification time from all file in given project folder."""
+
+        if not Path(project_folder).is_dir():
+            raise IOError(f"Path {project_folder} does not exist.")
+
+        exclude = [".git"]
+        last_m_time = -1
+        selected_file = ""
+        for root, dirs, files in os.walk(
+            project_folder, topdown=True, onerror=None, followlinks=False
+        ):
+            dirs[:] = [d for d in dirs if d not in exclude]
+            for f in files:
+                m_time = os.stat(os.path.join(root, f)).st_mtime
+                if m_time > last_m_time:
+                    last_m_time = m_time
+                    selected_file = os.path.join(root, f)
+
+        print(selected_file)
+        return last_m_time

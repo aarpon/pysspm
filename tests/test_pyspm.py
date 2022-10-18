@@ -1,6 +1,7 @@
 import re
 import shutil
 import tempfile
+from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -151,3 +152,11 @@ def test_cli(run_before_and_after_tests):
         assert result.exit_code == 0
         rows = result.stdout.split("\n")
         assert len(rows) == 8
+
+        # Close project P_0000 "now"
+        result = runner.invoke(app, ["project", "close", "P_0000", "now"])
+        assert result.exit_code == 0
+
+        # Close project P_0001 at "latest" modification
+        result = runner.invoke(app, ["project", "close", "P_0001", "latest"])
+        assert result.exit_code == 0

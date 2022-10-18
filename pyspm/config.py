@@ -25,7 +25,7 @@ class ConfigurationParser(object, metaclass=Singleton):
             "projects.external_data",
             "tools.git_path",
             "tools.use_git",
-            "tools.git_ignore_data"
+            "tools.git_ignore_data",
         ]
 
         # Configuration parser
