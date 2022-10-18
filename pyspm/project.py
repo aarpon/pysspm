@@ -544,7 +544,6 @@ class ProjectManager(object):
 
         exclude = [".git"]
         last_m_time = -1
-        selected_file = ""
         for root, dirs, files in os.walk(
             project_folder, topdown=True, onerror=None, followlinks=False
         ):
@@ -555,5 +554,4 @@ class ProjectManager(object):
                     last_m_time = m_time
                     selected_file = os.path.join(root, f)
 
-        print(selected_file)
         return last_m_time
