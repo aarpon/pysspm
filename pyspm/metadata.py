@@ -170,7 +170,6 @@ class MetadataParser:
         self._metadata["project"]["start_date"] = ""
         self._metadata["project"]["end_date"] = ""
         self._metadata["project"]["status"] = ""
-        self._metadata["project"]["description"] = ""
 
         # User
         self._metadata["user"] = {}
