@@ -422,6 +422,8 @@ class ProjectManager(object):
                                     metadata["user.name"],
                                     metadata["user.email"],
                                     metadata["user.group"],
+                                    metadata["project.start_date"],
+                                    metadata["project.end_date"],
                                     metadata["project.status"],
                                 ]
                             )
@@ -436,6 +438,8 @@ class ProjectManager(object):
             "User name",
             "User e-mail",
             "Group",
+            "Start date",
+            "End date",
             "Status",
         ]
 
@@ -482,13 +486,13 @@ class ProjectManager(object):
             raise IOError(f"Path {project_folder} does not exist.")
 
         if mode == "now":
-            closing_date = datetime.now().strftime("%Y-%m-%d")
+            closing_date = datetime.now().strftime("%d/%m/%Y")
         else:
             last_m_time = ProjectManager._get_last_modification_time(project_folder)
             if last_m_time == -1:
                 # No files found to extract last modification date
                 raise IOError("No files found to extract last modification date.")
-            closing_date = datetime.fromtimestamp(last_m_time).strftime("%Y-%m-%d")
+            closing_date = datetime.fromtimestamp(last_m_time).strftime("%d/%m/%Y")
 
         # Get the metadata of this project
         metadata_parser = MetadataParser(project_folder)
@@ -542,16 +546,20 @@ class ProjectManager(object):
         if not Path(project_folder).is_dir():
             raise IOError(f"Path {project_folder} does not exist.")
 
-        exclude = [".git"]
+        # Exclude .git folder and metadata.ini file
+        folder_exclude = [".git"]
+        file_exclude = ["metadata.ini"]
+
         last_m_time = -1
         for root, dirs, files in os.walk(
             project_folder, topdown=True, onerror=None, followlinks=False
         ):
-            dirs[:] = [d for d in dirs if d not in exclude]
+            dirs[:] = [d for d in dirs if d not in folder_exclude]
             for f in files:
+                if Path(os.path.join(root, f)).name in file_exclude:
+                    continue
                 m_time = os.stat(os.path.join(root, f)).st_mtime
                 if m_time > last_m_time:
                     last_m_time = m_time
-                    selected_file = os.path.join(root, f)
 
         return last_m_time
