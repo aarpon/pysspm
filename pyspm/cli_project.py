@@ -32,7 +32,7 @@ def create(
     extern_git_repos: str = typer.Option(
         default=None,
         help='List of remote git repositories in the form "name_1|url_1;name_2|url_2". '
-             'Not interactive: explicitly pass to set.',
+        "Not interactive: explicitly pass to set.",
     ),
 ):
     """Create a new project. Just call `spm project create` for interactive input."""
@@ -137,7 +137,8 @@ def create(
 def show(
     project_id: Optional[str] = typer.Argument(
         None, help="ID of the project to visualize. Omit to show all projects."
-    )
+    ),
+    detailed: Optional[bool] = typer.Option(False, help="Toggle detailed information."),
 ):
     """List all projects."""
 
@@ -152,7 +153,7 @@ def show(
 
     # Retrieve the projects table
     project_dataframe = ProjectManager.get_projects(
-        CONFIG_PARSER["projects.location"], project_id
+        CONFIG_PARSER["projects.location"], project_id, detailed
     )
 
     if project_dataframe is None:

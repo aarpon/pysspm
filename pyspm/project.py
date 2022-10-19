@@ -379,7 +379,7 @@ class ProjectManager(object):
 
     @staticmethod
     def get_projects(
-        projects_folder: Path, project_id: Optional[str] = None
+        projects_folder: Path, project_id: Optional[str] = None, detailed: bool = False
     ) -> Union[None, pd.DataFrame]:
         """Return the list of projects."""
 
@@ -413,35 +413,59 @@ class ProjectManager(object):
                             metadata = metadata_parser.read()
 
                             # Add project data
-                            project_data.append(
-                                [
-                                    int(year_folder.name),
-                                    int(month_folder.name),
-                                    candidate_project_folder.name,
-                                    metadata["project.title"],
-                                    metadata["user.name"],
-                                    metadata["user.email"],
-                                    metadata["user.group"],
-                                    metadata["project.start_date"],
-                                    metadata["project.end_date"],
-                                    metadata["project.status"],
-                                ]
-                            )
+                            if detailed:
+                                project_data.append(
+                                    [
+                                        int(year_folder.name),
+                                        int(month_folder.name),
+                                        candidate_project_folder.name,
+                                        metadata["project.title"],
+                                        metadata["user.name"],
+                                        metadata["user.email"],
+                                        metadata["user.group"],
+                                        metadata["project.start_date"],
+                                        metadata["project.end_date"],
+                                        metadata["project.status"],
+                                    ]
+                                )
+                            else:
+                                project_data.append(
+                                    [
+                                        int(year_folder.name),
+                                        int(month_folder.name),
+                                        candidate_project_folder.name,
+                                        metadata["project.title"],
+                                        metadata["user.name"],
+                                        metadata["user.group"],
+                                        metadata["project.status"],
+                                    ]
+                                )
                         except Exception as e:
                             print(e)
 
-        headers = [
-            "Year",
-            "Month",
-            "ID",
-            "Title",
-            "User name",
-            "User e-mail",
-            "Group",
-            "Start date",
-            "End date",
-            "Status",
-        ]
+        if detailed:
+            headers = [
+                "Year",
+                "Month",
+                "ID",
+                "Title",
+                "User name",
+                "User e-mail",
+                "Group",
+                "Start date",
+                "End date",
+                "Status",
+            ]
+        else:
+            headers = [
+                "Year",
+                "Month",
+                "ID",
+                "Title",
+                "User name",
+                "Group",
+                "Status",
+            ]
 
         if len(project_data) == 0:
             return None
@@ -450,6 +474,10 @@ class ProjectManager(object):
         df.sort_values(
             by=["Year", "Month", "ID"], ascending=True, inplace=True, ignore_index=True
         )
+
+        if not detailed:
+            df = df.drop(["Year", "Month"], axis=1)
+
         return df
 
     @staticmethod
