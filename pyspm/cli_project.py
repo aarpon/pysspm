@@ -31,7 +31,8 @@ def create(
     ),
     extern_git_repos: str = typer.Option(
         default=None,
-        help='List of remote git repositories in the form "name_1|url_1;name_2|url_2".  Set to "" to skip.',
+        help='List of remote git repositories in the form "name_1|url_1;name_2|url_2". '
+             'Not interactive: explicitly pass to set.',
     ),
 ):
     """Create a new project. Just call `spm project create` for interactive input."""
@@ -65,9 +66,7 @@ def create(
         short_descr = input("[ ] Short description for the project: ")
 
     if extern_git_repos is None:
-        extern_git_repos = input(
-            '[ ] List of external git repositories in the form "name_1|url_1;name_2|url_2": '
-        )
+        extern_git_repos = ""
 
     #
     # Get the project metadata
