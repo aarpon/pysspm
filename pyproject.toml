@@ -3,6 +3,7 @@ name = "pysspm"
 version = "0.1.0"
 description = "Simple Scientific Project Manager."
 authors = ["Aaron Ponti <aaron.ponti@bsse.ethz.ch>"]
+license = Apache-2.0 
 
 [tool.poetry.dependencies]
 python = "^3.10"
