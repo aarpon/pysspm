@@ -155,7 +155,9 @@ def test_cli(run_before_and_after_tests):
 
         # Add collaborators with non-ASCII characters
         collaborator = "Jörg Müller"
-        result = runner.invoke(app, ["project", "set", "P_0000", "user.collaborators", collaborator])
+        result = runner.invoke(
+            app, ["project", "set", "P_0000", "user.collaborators", collaborator]
+        )
         assert result.exit_code == 0
 
         # Retrieve collaborator and check encoding

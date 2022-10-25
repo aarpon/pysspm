@@ -32,9 +32,7 @@ def show():
                 "Error: sspm is not configured yet.", fg=typer.colors.RED, bold=True
             )
         )
-    typer.echo(
-        typer.style("Current configuration:", fg=typer.colors.GREEN, bold=True)
-    )
+    typer.echo(typer.style("Current configuration:", fg=typer.colors.GREEN, bold=True))
     for key in CONFIG_PARSER.keys():
         typer.echo(f"{key} = {CONFIG_PARSER[key]}")
 

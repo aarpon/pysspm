@@ -45,7 +45,7 @@ class MetadataParser:
         # Read it
         if self._metadata is None:
             self._metadata = configparser.ConfigParser()
-        self._metadata.read(self._metadata_file, encoding='utf-8')
+        self._metadata.read(self._metadata_file, encoding="utf-8")
 
     def __getitem__(self, item):
         """Get item for current key."""
@@ -109,7 +109,7 @@ class MetadataParser:
         # Read it
         if self._metadata is None:
             return {}
-        self._metadata.read(self._metadata_file, encoding='utf-8')
+        self._metadata.read(self._metadata_file, encoding="utf-8")
 
         metadata_dict = {}
         for section in self._metadata.sections():
