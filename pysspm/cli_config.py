@@ -1,6 +1,6 @@
 import typer
 
-from pyspm.config import ConfigurationParser
+from pysspm.config import ConfigurationParser
 
 # Load configuration (singleton)
 CONFIG_PARSER = ConfigurationParser()
@@ -16,7 +16,7 @@ def location():
     if not CONFIG_PARSER.is_valid:
         typer.echo(
             typer.style(
-                "Error: spm is not configured yet.", fg=typer.colors.RED, bold=True
+                "Error: sspm is not configured yet.", fg=typer.colors.RED, bold=True
             )
         )
     else:
@@ -29,15 +29,14 @@ def show():
     if not CONFIG_PARSER.is_valid:
         typer.echo(
             typer.style(
-                "Error: spm is not configured yet.", fg=typer.colors.RED, bold=True
+                "Error: sspm is not configured yet.", fg=typer.colors.RED, bold=True
             )
         )
-    else:
-        typer.echo(
-            typer.style("Current configuration:", fg=typer.colors.GREEN, bold=True)
-        )
-        for key in CONFIG_PARSER.keys():
-            typer.echo(f"{key} = {CONFIG_PARSER[key]}")
+    typer.echo(
+        typer.style("Current configuration:", fg=typer.colors.GREEN, bold=True)
+    )
+    for key in CONFIG_PARSER.keys():
+        typer.echo(f"{key} = {CONFIG_PARSER[key]}")
 
 
 @app.command("set")

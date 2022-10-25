@@ -7,9 +7,9 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from pyspm import __version__
-from pyspm.cli import CONFIG_PARSER, app
-from pyspm.project import ProjectManager
+from pysspm import __version__
+from pysspm.cli import CONFIG_PARSER, app
+from pysspm.project import ProjectManager
 
 # Instantiate a CliRunner object to be able to test the cli app
 runner = CliRunner()
@@ -24,7 +24,7 @@ def run_before_and_after_tests(tmpdir):
     #
 
     # First, make sure not to modify current config
-    conf_file = Path(Path.home(), ".config/pyspm/pyspm.ini")
+    conf_file = Path(Path.home(), ".config/pysspm/pysspm.ini")
     restore_config = False
     bkp_conf_file = None
     if conf_file.is_file():
@@ -49,13 +49,13 @@ def run_before_and_after_tests(tmpdir):
 def test_cli(run_before_and_after_tests):
     # Reset the configuration
     CONFIG_PARSER.reset()
-    conf_file = Path(Path.home(), ".config/pyspm/pyspm.ini")
+    conf_file = Path(Path.home(), ".config/pysspm/pysspm.ini")
     assert conf_file.is_file()
 
     # Check the version
     result = runner.invoke(app, ["version"])
     assert result.exit_code == 0
-    assert result.output == f"Simple (scientific) Project Manager v{__version__}\n"
+    assert result.output == f"Simple Scientific Project Manager v{__version__}\n"
 
     # Get the projects.location config value: it should be empty
     result = runner.invoke(app, ["config", "get", "projects.location"])

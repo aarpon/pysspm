@@ -3,8 +3,8 @@ from typing import Optional
 import typer
 from tabulate import tabulate
 
-from pyspm.config import ConfigurationParser
-from pyspm.project import ProjectManager
+from pysspm.config import ConfigurationParser
+from pysspm.project import ProjectManager
 
 # Load configuration (singleton)
 CONFIG_PARSER = ConfigurationParser()
@@ -21,7 +21,7 @@ def show():
     if not CONFIG_PARSER.is_valid:
         typer.echo(
             typer.style(
-                "Error: spm is not configured yet.", fg=typer.colors.RED, bold=True
+                "Error: sspm is not configured yet.", fg=typer.colors.RED, bold=True
             )
         )
         raise typer.Exit()

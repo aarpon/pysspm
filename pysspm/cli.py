@@ -1,10 +1,10 @@
 import typer
 
-import pyspm.cli_config as command_config
-import pyspm.cli_project as command_project
-import pyspm.cli_stats as command_stats
-from pyspm import __version__
-from pyspm.config import ConfigurationParser
+import pysspm.cli_config as command_config
+import pysspm.cli_project as command_project
+import pysspm.cli_stats as command_stats
+from pysspm import __version__
+from pysspm.config import ConfigurationParser
 
 # Load configuration (singleton)
 CONFIG_PARSER = ConfigurationParser()
@@ -21,11 +21,11 @@ app.add_typer(command_stats.app)
 @app.command("version")
 def version():
     """Print version information."""
-    typer.echo(f"Simple (scientific) Project Manager v{__version__}")
+    typer.echo(f"Simple Scientific Project Manager v{__version__}")
 
 
 def main():
-    """Entry point for the spm script."""
+    """Entry point for the sspm script."""
     app()
 
 

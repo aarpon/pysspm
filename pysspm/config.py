@@ -3,7 +3,7 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-from pyspm.util import Singleton
+from pysspm.util import Singleton
 
 
 class ConfigurationParser(object, metaclass=Singleton):
@@ -32,10 +32,10 @@ class ConfigurationParser(object, metaclass=Singleton):
         self._config = None
 
         # Configuration folder
-        self._conf_path = Path(Path.home(), ".config/pyspm")
+        self._conf_path = Path(Path.home(), ".config/pysspm")
 
         # Config file name
-        self._conf_file = self._conf_path / "pyspm.ini"
+        self._conf_file = self._conf_path / "pysspm.ini"
 
         # If the configuration file does not exist yet, create a default one
         if not self._conf_file.is_file():
@@ -127,7 +127,6 @@ class ConfigurationParser(object, metaclass=Singleton):
         self._config["projects"] = {}
         self._config["projects"]["location"] = ""
         self._config["projects"]["external_data"] = ""
-        self._config["projects"]["template"] = "<TO_BE_DESIGNED>"
 
         # Tools
         self._config["tools"] = {}

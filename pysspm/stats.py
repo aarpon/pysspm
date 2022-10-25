@@ -1,4 +1,4 @@
-from pyspm.config import ConfigurationParser
+from pysspm.config import ConfigurationParser
 
 # Load configuration (singleton)
 CONFIG_PARSER = ConfigurationParser()

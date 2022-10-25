@@ -9,9 +9,9 @@ from typing import Optional
 import typer
 from tabulate import tabulate
 
-from pyspm.config import ConfigurationParser, GlobalMetadataManager
-from pyspm.metadata import MetadataParser
-from pyspm.project import Project, ProjectManager
+from pysspm.config import ConfigurationParser, GlobalMetadataManager
+from pysspm.metadata import MetadataParser
+from pysspm.project import Project, ProjectManager
 
 # Load configuration (singleton)
 CONFIG_PARSER = ConfigurationParser()
@@ -35,13 +35,13 @@ def create(
         "Not interactive: explicitly pass to set.",
     ),
 ):
-    """Create a new project. Just call `spm project create` for interactive input."""
+    """Create a new project. Just call `sspm project create` for interactive input."""
 
     # Check that we have a valid configuration
     if not CONFIG_PARSER.is_valid:
         typer.echo(
             typer.style(
-                "Error: spm is not configured yet.", fg=typer.colors.RED, bold=True
+                "Error: sspm is not configured yet.", fg=typer.colors.RED, bold=True
             )
         )
         raise typer.Exit()
@@ -77,7 +77,7 @@ def create(
     if projects_location == "":
         typer.echo(
             typer.style(
-                f"Error: SPM has not been configured yet.",
+                f"Error: sspm has not been configured yet.",
                 fg=typer.colors.RED,
                 bold=True,
             )
@@ -146,7 +146,7 @@ def show(
     if not CONFIG_PARSER.is_valid:
         typer.echo(
             typer.style(
-                "Error: spm is not configured yet.", fg=typer.colors.RED, bold=True
+                "Error: sspm is not configured yet.", fg=typer.colors.RED, bold=True
             )
         )
         raise typer.Exit()
@@ -182,7 +182,7 @@ def open_folder(
     if not CONFIG_PARSER.is_valid:
         typer.echo(
             typer.style(
-                "Error: spm is not configured yet.", fg=typer.colors.RED, bold=True
+                "Error: sspm is not configured yet.", fg=typer.colors.RED, bold=True
             )
         )
         raise typer.Exit()
@@ -299,7 +299,7 @@ def close_project(
     if not CONFIG_PARSER.is_valid:
         typer.echo(
             typer.style(
-                "Error: spm is not configured yet.", fg=typer.colors.RED, bold=True
+                "Error: sspm is not configured yet.", fg=typer.colors.RED, bold=True
             )
         )
         raise typer.Exit()
@@ -359,7 +359,7 @@ def get_metadata(
     if not CONFIG_PARSER.is_valid:
         typer.echo(
             typer.style(
-                "Error: spm is not configured yet.", fg=typer.colors.RED, bold=True
+                "Error: sspm is not configured yet.", fg=typer.colors.RED, bold=True
             )
         )
         raise typer.Exit()
@@ -429,7 +429,7 @@ def set_metadata(
     if not CONFIG_PARSER.is_valid:
         typer.echo(
             typer.style(
-                "Error: spm is not configured yet.", fg=typer.colors.RED, bold=True
+                "Error: sspm is not configured yet.", fg=typer.colors.RED, bold=True
             )
         )
         raise typer.Exit()
