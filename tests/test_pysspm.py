@@ -173,3 +173,44 @@ def test_cli(run_before_and_after_tests):
         # Close project P_0001 at "latest" modification
         result = runner.invoke(app, ["project", "close", "P_0001", "latest"])
         assert result.exit_code == 0
+
+        # Check that the .git folder in the projects with ID P_0000 and P_0001 exists
+        project_path = ProjectManager.get_project_path_by_id(CONFIG_PARSER["projects.location"], "P_0000")
+        assert (Path(project_path) / ".git").is_dir() == True
+
+        project_path = ProjectManager.get_project_path_by_id(CONFIG_PARSER["projects.location"], "P_0001")
+        assert (Path(project_path) / ".git").is_dir() == True
+
+        # Disable git support
+        result = runner.invoke(
+            app, ["config", "set", "tools.use_git", "False"]
+        )
+        assert result.exit_code == 0
+
+        # Add a new project without git initialization
+        result = runner.invoke(
+            app,
+            [
+                "project",
+                "create",
+                "--title",
+                "Project C",
+                "--user-name",
+                "Sherlock Moriarty",
+                "--user-email",
+                "smoriarty@example.com",
+                "--user-group",
+                "Group 3",
+                "--short-descr",
+                "",
+                "--extern-git-repos",
+                "",
+            ],
+        )
+        assert result.exit_code == 0
+
+        # Check that the .git folder in the path does not exist
+        project_path = ProjectManager.get_project_path_by_id(CONFIG_PARSER["projects.location"], "P_0002")
+        assert (Path(project_path) / ".git").is_dir() == False
+
+
