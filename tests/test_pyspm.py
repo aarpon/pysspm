@@ -153,6 +153,17 @@ def test_cli(run_before_and_after_tests):
         rows = result.stdout.split("\n")
         assert len(rows) == 8
 
+        # Add collaborators with non-ASCII characters
+        collaborator = "Jörg Müller"
+        result = runner.invoke(app, ["project", "set", "P_0000", "user.collaborators", collaborator])
+        assert result.exit_code == 0
+
+        # Retrieve collaborator and check encoding
+        result = runner.invoke(app, ["project", "get", "P_0000", "user.collaborators"])
+        assert result.exit_code == 0
+        ret_collaborator = result.output.rstrip()
+        assert ret_collaborator == collaborator
+
         # Close project P_0000 "now"
         result = runner.invoke(app, ["project", "close", "P_0000", "now"])
         assert result.exit_code == 0

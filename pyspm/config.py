@@ -44,7 +44,7 @@ class ConfigurationParser(object, metaclass=Singleton):
         # Read it
         if self._config is None:
             self._config = configparser.ConfigParser()
-        self._config.read(self._conf_file)
+        self._config.read(self._conf_file, encoding="utf-8")
 
     def reset(self):
         """Reset the configuration to default values."""
