@@ -3,6 +3,7 @@ from typing import Optional
 import typer
 from tabulate import tabulate
 
+from pysspm.cli_init import check_if_initialized
 from pysspm.config import ConfigurationParser
 from pysspm.project import ProjectManager
 
@@ -17,14 +18,8 @@ app = typer.Typer(name="stats", help="Collect statistics.")
 def show():
     """Show count of projects by year and group."""
 
-    # Check that we have a valid configuration
-    if not CONFIG_PARSER.is_valid:
-        typer.echo(
-            typer.style(
-                "Error: sspm is not configured yet.", fg=typer.colors.RED, bold=True
-            )
-        )
-        raise typer.Exit()
+    # Make sure sspm configuration is initialized
+    check_if_initialized()
 
     # Retrieve the projects table
     project_dataframe = ProjectManager.get_projects(

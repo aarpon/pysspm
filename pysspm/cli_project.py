@@ -9,6 +9,7 @@ from typing import Optional
 import typer
 from tabulate import tabulate
 
+from pysspm.cli_init import check_if_initialized
 from pysspm.config import ConfigurationParser, GlobalMetadataManager
 from pysspm.metadata import MetadataParser
 from pysspm.project import Project, ProjectManager
@@ -37,14 +38,8 @@ def create(
 ):
     """Create a new project. Just call `sspm project create` for interactive input."""
 
-    # Check that we have a valid configuration
-    if not CONFIG_PARSER.is_valid:
-        typer.echo(
-            typer.style(
-                "Error: sspm is not configured yet.", fg=typer.colors.RED, bold=True
-            )
-        )
-        raise typer.Exit()
+    # Make sure sspm configuration is initialized
+    check_if_initialized()
 
     #
     # Parse the inputs
@@ -142,14 +137,8 @@ def show(
 ):
     """List all projects."""
 
-    # Check that we have a valid configuration
-    if not CONFIG_PARSER.is_valid:
-        typer.echo(
-            typer.style(
-                "Error: sspm is not configured yet.", fg=typer.colors.RED, bold=True
-            )
-        )
-        raise typer.Exit()
+    # Make sure sspm configuration is initialized
+    check_if_initialized()
 
     # Retrieve the projects table
     project_dataframe = ProjectManager.get_projects(
@@ -178,14 +167,8 @@ def open_folder(
 ):
     """Open a requested or all projects folder in the system's file explorer."""
 
-    # Check that we have a valid configuration
-    if not CONFIG_PARSER.is_valid:
-        typer.echo(
-            typer.style(
-                "Error: sspm is not configured yet.", fg=typer.colors.RED, bold=True
-            )
-        )
-        raise typer.Exit()
+    # Make sure sspm configuration is initialized
+    check_if_initialized()
 
     if project_id is None:
         folder_to_open = CONFIG_PARSER["projects.location"]
@@ -295,14 +278,8 @@ def close_project(
         )
         raise typer.Exit()
 
-    # Check that we have a valid configuration
-    if not CONFIG_PARSER.is_valid:
-        typer.echo(
-            typer.style(
-                "Error: sspm is not configured yet.", fg=typer.colors.RED, bold=True
-            )
-        )
-        raise typer.Exit()
+    # Make sure sspm configuration is initialized
+    check_if_initialized()
 
     # Get the full path to the requested project ID.
     project_folder = ProjectManager.get_project_path_by_id(
@@ -344,16 +321,8 @@ def get_metadata(
 ):
     """Get value for the requested metadata key of given project."""
 
-    # Project not found. Inform and return
-    if project_id is None:
-        typer.echo(
-            typer.style(
-                f"Error: please specify the ID of the project to query.",
-                fg=typer.colors.RED,
-                bold=True,
-            )
-        )
-        raise typer.Exit()
+    # Make sure sspm configuration is initialized
+    check_if_initialized()
 
     # Check that we have a valid configuration
     if not CONFIG_PARSER.is_valid:
@@ -425,14 +394,8 @@ def set_metadata(
         )
         raise typer.Exit()
 
-    # Check that we have a valid configuration
-    if not CONFIG_PARSER.is_valid:
-        typer.echo(
-            typer.style(
-                "Error: sspm is not configured yet.", fg=typer.colors.RED, bold=True
-            )
-        )
-        raise typer.Exit()
+    # Make sure sspm configuration is initialized
+    check_if_initialized()
 
     # Try to find the requested project
     project_folder = ProjectManager.get_project_path_by_id(

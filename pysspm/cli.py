@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import typer
 
 import pysspm.cli_config as command_config
@@ -30,5 +32,4 @@ def main():
 
 
 if __name__ == "__main__":
-    typer.echo(CONFIG_PARSER)
-    app()
+    main()
