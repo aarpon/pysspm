@@ -6,6 +6,7 @@ import pysspm.cli_config as command_config
 import pysspm.cli_project as command_project
 import pysspm.cli_stats as command_stats
 from pysspm import __version__
+from pysspm.cli_init import initialize
 from pysspm.config import ConfigurationParser
 
 # Load configuration (singleton)
@@ -24,6 +25,12 @@ app.add_typer(command_stats.app)
 def version():
     """Print version information."""
     typer.echo(f"Simple Scientific Project Manager v{__version__}")
+
+
+@app.command("init")
+def init():
+    """Initialize."""
+    initialize()
 
 
 def main():
