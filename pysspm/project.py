@@ -378,6 +378,19 @@ class ProjectManager(object):
     """Project manager (static class)."""
 
     @staticmethod
+    def keys():
+        """Return editable keys."""
+        return [
+            "project.title",
+            "user.name",
+            "user.email",
+            "user.group",
+            "project.start_date",
+            "project.end_date",
+            "project.status",
+        ]
+
+    @staticmethod
     def get_projects(
         projects_folder: Path, project_id: Optional[str] = None, detailed: bool = False
     ) -> Union[None, pd.DataFrame]:

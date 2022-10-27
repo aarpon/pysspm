@@ -439,3 +439,10 @@ def set_metadata(
             )
         )
         raise typer.Exit()
+
+
+@app.command("keys")
+def get_project_keys():
+    """Return a list of editable keys for the projects."""
+
+    typer.echo(f"Valid editable project keys are: {ProjectManager.keys()}")

@@ -33,6 +33,15 @@ def show():
     for key in CONFIG_PARSER.keys():
         typer.echo(f"{key} = {CONFIG_PARSER[key]}")
 
+    typer.echo("")
+    typer.echo(
+        typer.style(
+            "Use `sspm set 'key' 'value'` to change configuration",
+            fg=typer.colors.GREEN,
+            bold=True,
+        )
+    )
+
 
 @app.command("set")
 def set(item: str, value: str):
@@ -69,4 +78,4 @@ def get(key: str):
 @app.command("keys")
 def keys():
     """Show the list of valid configuration keys."""
-    typer.echo(f"Valid configuration keys are : {CONFIG_PARSER.valid_keys}.")
+    typer.echo(f"Valid configuration keys are: {CONFIG_PARSER.valid_keys}.")

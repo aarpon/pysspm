@@ -11,6 +11,24 @@ CONFIG_PARSER = ConfigurationParser()
 def initialize():
     """Initialize sspm."""
 
+    # If sspm is already initialized, inform and ask it it is okay to continue
+    if CONFIG_PARSER.is_valid:
+        current_project_location = CONFIG_PARSER["projects.location"]
+        # Inform
+        typer.echo(
+            typer.style(
+                f"sspm is already configured: `project_location = {current_project_location}`.",
+                fg=typer.colors.GREEN,
+                bold=True,
+            )
+        )
+        re_init = input("Do you want to reinitialite sspm [y|N]?")
+        if re_init is None or re_init == "":
+            re_init = "N"
+        if re_init.upper() != "Y":
+            typer.echo("Leaving configuration untouched.")
+            raise typer.Exit()
+
     # Inform
     typer.echo(
         typer.style(
@@ -19,8 +37,6 @@ def initialize():
             bold=True,
         )
     )
-    typer.echo(f"Initialized configuration file `{CONFIG_PARSER.config_file}`.")
-
     # Ask the user to provide a value for `projects.location`
     projects_location = input("Please specify `projects.location` = ")
     if projects_location == "":
