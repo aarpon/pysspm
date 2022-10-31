@@ -187,7 +187,8 @@ The list of valid keys can be obtained with:
 
 ```bash
 > sspm project keys
-Valid editable project keys are: ['project.title', 'user.name', 'user.email', 'user.group', 'project.start_date', 'project.end_date', 'project.status']
+Valid editable project keys are: ['project.title', 'user.name', 'user.email', 'user.group', 'project.start_date',
+ 'project.end_date', 'project.status']
 ```
 
 A project can be closed by manually setting `project.end_date` and `projects.status`, or by using `sspm project close <project_ID> now|latest`. When closing `now`, today's date will be used as `project.end_date`; with `latest`, the date of the last file modification found in the project folder will be used instead. The `project.status` will be set to `completed`.
