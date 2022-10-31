@@ -1,10 +1,11 @@
 # Simple Scientific Project Manager (sspm)
 
-Simple command-line tool to manage scientific projects.
+Simple, platform-independent command-line tool to manage scientific projects.
+
 
 ## Installation
 
-`sspm` requires Python 3.10 to run. To install, run the following from a console:
+`sspm` requires Python 3.10 or newer to run. To install, run the following from a console:
 
 ```bash
 $ pip install pysspm
@@ -26,4 +27,5 @@ $ pip install -e .
 
 ## Usage
 
-End-user documentation will follow soon.
+The end-user documentation can be found in [pysspm/docs/index.html](pysspm/docs/index.md).
+

@@ -517,7 +517,7 @@ class ProjectManager(object):
         return ""
 
     @staticmethod
-    def close(project_folder: Union[Path, str], mode: str = "now") -> int:
+    def close(project_folder: Union[Path, str], mode: str = "now") -> str:
         """Close the project, either \"now\" or at the date of the \"latest\" file modification."""
 
         if mode not in ["now", "latest"]:
@@ -541,6 +541,9 @@ class ProjectManager(object):
         # Close the project with this date
         metadata_parser["project.end_date"] = closing_date
         metadata_parser["project.status"] = "completed"
+
+        # Return the closing data
+        return closing_date
 
     @staticmethod
     def _get_year_folders(projects_folder: Union[Path, str]) -> list:

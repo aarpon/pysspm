@@ -54,6 +54,7 @@ def initialize():
             raise typer.Exit()
         try:
             projects_location.mkdir(parents=True, exist_ok=True)
+            print(f"Projects folder `{projects_location}` successfully created.")
         except OSError as e:
             typer.echo(
                 typer.style(
@@ -63,11 +64,11 @@ def initialize():
                 )
             )
             raise typer.Exit()
-    typer.echo(f"Updating configuration.")
+    typer.echo(f"Storing projects location in configuration file.")
     CONFIG_PARSER["projects.location"] = str(projects_location)
     typer.echo(
         typer.style(
-            f"sspm initialized. Run `sspm config show` to visualize current configuration.",
+            f"\nsspm initialized. Run `sspm config show` to visualize current configuration.",
             fg=typer.colors.GREEN,
             bold=True,
         )

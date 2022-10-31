@@ -299,7 +299,8 @@ def close_project(
         raise typer.Exit()
 
     try:
-        ProjectManager.close(project_folder, mode)
+        closing_date = ProjectManager.close(project_folder, mode)
+        typer.echo(f"Project closed with end date {closing_date}.")
     except Exception as e:
         typer.echo(
             typer.style(

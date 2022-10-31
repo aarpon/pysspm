@@ -56,7 +56,7 @@ class ConfigurationParser(object, metaclass=Singleton):
             shutil.copyfile(self._conf_file, backup_file_name)
         self._write_default()
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: str):
         """Get item for current key."""
         parts = item.split(".")
         if parts[0] not in self._config.sections():
@@ -65,7 +65,7 @@ class ConfigurationParser(object, metaclass=Singleton):
             raise ValueError(f"Invalid configuration key '{item}'.")
         return self._config[parts[0]][parts[1]]
 
-    def __setitem__(self, item, value):
+    def __setitem__(self, item: str, value: str):
         """Set value for requested item."""
 
         # Find the correct keys

@@ -36,7 +36,8 @@ def show():
     typer.echo("")
     typer.echo(
         typer.style(
-            "Use `sspm set 'key' 'value'` to change configuration",
+            "Use `sspm config set <key> <value>` to change configuration.\n"
+            + "Use `sspm config keys` to show the list of valid config keys.",
             fg=typer.colors.GREEN,
             bold=True,
         )
