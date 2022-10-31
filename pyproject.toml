@@ -4,6 +4,8 @@ version = "0.2.0"
 description = "Simple Scientific Project Manager."
 authors = ["Aaron Ponti <aaron.ponti@bsse.ethz.ch>"]
 license = "Apache-2.0"
+repository = "https://github.com/aarpon/pysspm"
+documentation = "https://github.com/aarpon/pysspm"
 
 [tool.poetry.dependencies]
 python = "^3.10"
