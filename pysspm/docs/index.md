@@ -17,6 +17,8 @@ Updating `project.location` in configuration file.
 sspm initialized. Run `sspm config show` to visualize current configuration.
 ```
 
+**Note**: if `project.location` is on a network drive, it can be pointed at from different `sspm` installation from several clients.
+
 ## Getting help
 
 Help can be obtained as follows:
