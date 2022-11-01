@@ -195,7 +195,7 @@ class Project:
         self.EXTERN_GIT_REPOS = self._process_list_if_extern_git_repos(extern_git_repos)
         self._set_extern_git_projects()
 
-    def set_git_path(self, git_path: str):
+    def set_git_path(self, git_path: Union[Path, str]):
         """Explicitly set the path to the git executable to use.
 
         Parameters
@@ -205,8 +205,9 @@ class Project:
             Full path to the git executable.
         """
 
-        if os.path.isfile(git_path):
-            self.git_path = Path(git_path)
+        git_path = Path(git_path)
+        if git_path.isfile():
+            self.git_path = git_path
         else:
             print(f"File {git_path} does not exist!", file=sys.stderr)
 
@@ -378,8 +379,15 @@ class ProjectManager(object):
     """Project manager (static class)."""
 
     @staticmethod
-    def keys():
-        """Return editable keys."""
+    def keys() -> list:
+        """Return editable keys.
+
+        Returns
+        -------
+
+        keys: list
+            List if editable project keys.
+        """
         return [
             "project.title",
             "user.name",
@@ -394,7 +402,26 @@ class ProjectManager(object):
     def get_projects(
         projects_folder: Path, project_id: Optional[str] = None, detailed: bool = False
     ) -> Union[None, pd.DataFrame]:
-        """Return the list of projects."""
+        """Return the metadata of either all projects, or the project with specified `project_id`.
+
+        Parameters
+        ----------
+
+        projects_folder: Path
+            Path to the root of the projects folder.
+
+        project_id: str
+            Project ID (or a univocal substring) for which to return metadata. Omit to return the metadata of all projects.
+
+        detailed: bool
+            Whether to return complete metadata or a subset.
+
+        Returns
+        -------
+
+        metadata: Union[None|pd.Dataframe]
+            Dataframe containing project metadata or None if the requested `project_id` could not be found.
+        """
 
         # Retrieve all sub-folders that map to valid years
         year_folders = ProjectManager._get_year_folders(projects_folder)
@@ -495,7 +522,23 @@ class ProjectManager(object):
 
     @staticmethod
     def get_project_path_by_id(projects_folder: Path, project_id: str) -> str:
-        """The project with given ID and returns its full path."""
+        """Returns the full path to the project with given `project_id`.
+
+        Parameters
+        ----------
+
+        projects_folder: Path
+            Path to the root of the projects folder.
+
+        project_id: str
+            Project ID (or a univocal substring) for which to return the project full path.
+
+        Returns
+        -------
+
+        project_path: str
+            String containing the project full path or "" if the project could not be found.
+        """
 
         # Retrieve all sub-folders that map to valid years
         year_folders = ProjectManager._get_year_folders(projects_folder)
@@ -518,7 +561,26 @@ class ProjectManager(object):
 
     @staticmethod
     def close(project_folder: Union[Path, str], mode: str = "now") -> str:
-        """Close the project, either \"now\" or at the date of the \"latest\" file modification."""
+        """Close the specified project, either \"now\" or at the date of the \"latest\" file modification.
+
+        Parameters
+        ----------
+
+        project_folder: Path
+            Full path to the project to close. A project is closed by setting its `project.status` (to
+            `completed`I and `project.end_date`.
+
+        mode: str
+            One of two modes of setting the closing date: if "now", today's date will be used; if "latest",
+            the date of the last modification date find in the whole folder (excluding metadata and git
+            information). In both cases, date will be in the form DD/MM/YYYY.
+
+        Returns
+        -------
+
+        closing_date: str
+            String containing the closing date in the form DD/MM/YYYY.
+        """
 
         if mode not in ["now", "latest"]:
             raise ValueError('"mode" must be one of "now" or "latest".')
@@ -546,8 +608,21 @@ class ProjectManager(object):
         return closing_date
 
     @staticmethod
-    def _get_year_folders(projects_folder: Union[Path, str]) -> list:
-        """Scans the projects folder and returns all valid year folders."""
+    def _get_year_folders(projects_folder: Union[Path, str]) -> list[Path]:
+        """Scans the projects folder and returns the paths of all valid year subfolders.
+
+        Parameters
+        ----------
+
+        projects_folder: Path
+            Path to the root of the projects folder.
+
+        Returns
+        -------
+
+        year_subfolders: list[Path]
+            List of full paths to the years subfolders.
+        """
 
         year_subfolders = []
         for subfolder in Path(projects_folder).iterdir():
@@ -564,8 +639,22 @@ class ProjectManager(object):
         return year_subfolders
 
     @staticmethod
-    def _get_month_folders(year_folder: Union[Path, str]) -> list:
-        """Scans the year folder and returns all valid months folders."""
+    def _get_month_folders(year_folder: Union[Path, str]) -> list[Path]:
+        """Scans the year folder and returns the paths of all valid months subfolders.
+
+        Parameters
+        ----------
+
+        year_folder: Path
+            Full Path to a year subfolder.
+
+        Returns
+        -------
+
+        month_subfolders: list[Path]
+            List of full paths to the month subfolders.
+
+        """
 
         month_subfolders = []
         for subfolder in Path(year_folder).iterdir():
@@ -585,7 +674,20 @@ class ProjectManager(object):
 
     @staticmethod
     def _get_last_modification_time(project_folder: Union[Path, str]) -> int:
-        """Return the last modification time from all file in given project folder."""
+        """Return the last modification time from all file in given project folder.
+
+        Parameters
+        ----------
+
+        project_folder: Union[Path, str]
+            Full path to the project to scan.
+
+        Returns
+        -------
+
+        last_m_time: int
+            Last modification time as returned from `os.stat(file).st_mtime`.
+        """
 
         if not Path(project_folder).is_dir():
             raise IOError(f"Path {project_folder} does not exist.")
