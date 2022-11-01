@@ -11,6 +11,12 @@ class MetadataParser:
 
         The MetadataParser loads the metadata file if it exists or creates
         a default one that is not yet usable.
+
+        Parameters
+        ----------
+
+        project_folder: Union[Path, str]
+            Full path to the project to scan.
         """
 
         # Current version
@@ -47,26 +53,49 @@ class MetadataParser:
             self._metadata = configparser.ConfigParser()
         self._metadata.read(self._metadata_file, encoding="utf-8")
 
-    def __getitem__(self, item):
-        """Get item for current key."""
-        parts = item.split(".")
+    def __getitem__(self, key) -> str:
+        """Get value for current key.
+
+        Parameters
+        ----------
+
+        key: str
+            Key to be queried.
+
+        Returns
+        -------
+
+        value: str
+            Value associated to requested key.
+        """
+        parts = key.split(".")
         if parts[0] not in self._metadata.sections():
-            raise ValueError(f"Invalid metadata key '{item}'.")
+            raise ValueError(f"Invalid metadata key '{key}'.")
         if parts[1] not in self._metadata[parts[0]]:
-            raise ValueError(f"Invalid metadata key '{item}'.")
+            raise ValueError(f"Invalid metadata key '{key}'.")
         return self._metadata[parts[0]][parts[1]]
 
-    def __setitem__(self, item, value):
-        """Set value for requested item."""
+    def __setitem__(self, key: str, value: str):
+        """Set value for requested key.
+
+        Parameters
+        ----------
+
+        key: str
+            Key to be updated.
+
+        value: str
+            Value to be associated to the requested key.
+        """
 
         # Find the correct keys
-        parts = item.split(".")
+        parts = key.split(".")
         if parts[0] not in self._metadata.sections():
-            raise ValueError(f"Invalid metadata key '{item}'.")
+            raise ValueError(f"Invalid metadata key '{key}'.")
         if parts[1] not in self._metadata[parts[0]]:
-            raise ValueError(f"Invalid metadata key '{item}'.")
-        if value == "" and not self.can_be_empty(item):
-            raise ValueError(f"Item {item} can not be set to ''.")
+            raise ValueError(f"Invalid metadata key '{key}'.")
+        if value == "" and not self.can_be_empty(key):
+            raise ValueError(f"Item {key} can not be set to ''.")
         # Set the value for the requested item
         self._metadata[parts[0]][parts[1]] = value
 
@@ -76,35 +105,76 @@ class MetadataParser:
 
     @property
     def metadata_file(self) -> str:
-        """Return full path of metadata file."""
+        """Return full path of metadata file.
+
+        Returns
+        -------
+
+        metadata_file: str
+            Full path to the metadata.ini file.
+        """
         return str(self._metadata_file)
 
     @property
     def is_valid(self) -> bool:
-        """Check current metadata values."""
+        """Check current metadata values.
+
+        Returns
+        -------
+
+        is_valid: bool
+            True if the metadata file is valid, False otherwise.
+        """
         return self._validate()
 
     @property
-    def keys(self) -> list:
-        """Return the list of metadata keys."""
+    def keys(self) -> list[str]:
+        """Return the list of metadata keys.
+
+        Returns
+        -------
+
+        keys: list[str]
+            List of metadata keys.
+        """
         return self.valid_keys
 
-    def can_be_empty(self, metadata_key) -> bool:
-        """Return True if requested metadata can be set to empty."""
+    def can_be_empty(self, key) -> bool:
+        """Return True if requested metadata can be set to empty.
+
+        Parameters
+        ----------
+
+        key: str
+            Key for which to query whether it can be empty.
+
+        Returns
+        -------
+
+        result: bool
+            True if the requested metadata key can have value = "".
+        """
 
         settable_keys = self.valid_keys.copy()
         settable_keys.remove("metadata.version")
 
-        if metadata_key not in settable_keys:
+        if key not in settable_keys:
             raise ValueError("The requested metadata key is not recognized.")
 
-        if metadata_key == "user.collaborators" or metadata_key == "project.end_date":
+        if key == "user.collaborators" or key == "project.end_date":
             return True
 
         return False
 
-    def read(self):
-        """Read the metadata file."""
+    def read(self) -> dict:
+        """Read the metadata file.
+
+        Returns
+        -------
+
+        metadata_dict: dict
+            Dictionary of all metadata key-value pairs.
+        """
 
         # Read it
         if self._metadata is None:
@@ -121,7 +191,14 @@ class MetadataParser:
         return metadata_dict
 
     def write(self) -> bool:
-        """Save the metadata file."""
+        """Save the metadata file.
+
+        Returns
+        -------
+
+        result: bool
+            True if the metadata file could be written successfully, False otherwise.
+        """
 
         # Initialize the configuration parser
         if self._metadata is None:
