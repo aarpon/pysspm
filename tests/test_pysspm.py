@@ -1,7 +1,6 @@
 import re
 import shutil
 import tempfile
-from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -9,7 +8,7 @@ from typer.testing import CliRunner
 
 from pysspm import __version__
 from pysspm.cli import CONFIG_PARSER, app
-from pysspm.project import ProjectManager
+from pysspm.lib.project import ProjectManager
 
 # Instantiate a CliRunner object to be able to test the cli app
 runner = CliRunner()

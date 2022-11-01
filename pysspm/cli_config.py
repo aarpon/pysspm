@@ -1,7 +1,7 @@
 import typer
 
-from pysspm.cli_init import check_if_initialized
-from pysspm.config import ConfigurationParser
+from .cli_init import check_if_initialized
+from .lib.config import ConfigurationParser
 
 # Load configuration (singleton)
 CONFIG_PARSER = ConfigurationParser()

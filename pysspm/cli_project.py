@@ -2,17 +2,15 @@ import os
 import platform
 import re
 import subprocess
-from datetime import datetime
-from pathlib import Path
 from typing import Optional
 
 import typer
 from tabulate import tabulate
 
-from pysspm.cli_init import check_if_initialized
-from pysspm.config import ConfigurationParser, GlobalMetadataManager
-from pysspm.metadata import MetadataParser
-from pysspm.project import Project, ProjectManager
+from .cli_init import check_if_initialized
+from .lib.config import ConfigurationParser, GlobalMetadataManager
+from .lib.metadata import MetadataParser
+from .lib.project import Project, ProjectManager
 
 # Load configuration (singleton)
 CONFIG_PARSER = ConfigurationParser()

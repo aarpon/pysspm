@@ -2,7 +2,7 @@ from pathlib import Path
 
 import typer
 
-from pysspm.config import ConfigurationParser
+from .lib.config import ConfigurationParser
 
 # Load configuration (singleton)
 CONFIG_PARSER = ConfigurationParser()

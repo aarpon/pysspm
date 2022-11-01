@@ -1,11 +1,9 @@
-from typing import Optional
-
 import typer
 from tabulate import tabulate
 
-from pysspm.cli_init import check_if_initialized
-from pysspm.config import ConfigurationParser
-from pysspm.project import ProjectManager
+from .cli_init import check_if_initialized
+from .lib.config import ConfigurationParser
+from .lib.project import ProjectManager
 
 # Load configuration (singleton)
 CONFIG_PARSER = ConfigurationParser()

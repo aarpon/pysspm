@@ -7,7 +7,7 @@ from typing import Optional, Union
 
 import pandas as pd
 
-from pysspm.metadata import MetadataParser
+from .metadata import MetadataParser
 
 
 class Project:

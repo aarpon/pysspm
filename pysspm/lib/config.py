@@ -3,7 +3,7 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-from pysspm.util import Singleton
+from .util import Singleton
 
 
 class ConfigurationParser(object, metaclass=Singleton):
