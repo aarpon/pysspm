@@ -69,8 +69,7 @@ class ConfigurationParser(object, metaclass=Singleton):
         -------
 
         value: str
-            Val        
-
+            Value associated to requested key.
         """
         parts = key.split(".")
         if parts[0] not in self._config.sections():
@@ -89,7 +88,7 @@ class ConfigurationParser(object, metaclass=Singleton):
             Key to be updated.
 
         value: str
-            Value to be associated to the requested key.        
+            Value to be associated to the requested key.
         """
 
         # Find the correct keys
@@ -107,12 +106,12 @@ class ConfigurationParser(object, metaclass=Singleton):
     @property
     def config_file(self) -> str:
         """Return full path of configuration file.
-        
+
         Returns
         -------
 
         conf_file: str
-            Full path to the configuration file.        
+            Full path to the configuration file.
         """
         return str(self._conf_file)
 
@@ -124,29 +123,29 @@ class ConfigurationParser(object, metaclass=Singleton):
         -------
 
         is_valid: bool
-            True if the configuration file is valid, False otherwise.        
+            True if the configuration file is valid, False otherwise.
         """
         return self._validate()
 
     def keys(self) -> list:
         """Return the list of configuration keys.
-        
+
         Returns
         -------
 
         keys: list[str]
-            List of configuration keys.        
+            List of configuration keys.
         """
         return self.valid_keys
 
     def _validate(self) -> bool:
         """Check current configuration.
-        
+
         Returns
         -------
-        
+
         is_valid: bool
-           True if the metadata file is valid, False otherwise. 
+           True if the metadata file is valid, False otherwise.
         """
 
         # Check that the version matches the latest
@@ -200,7 +199,7 @@ class GlobalMetadataManager(object):
     @staticmethod
     def get_last_id(projects_folder: Path) -> int:
         """Get the last project id.
-        
+
         Parameters
         ----------
 
@@ -230,12 +229,12 @@ class GlobalMetadataManager(object):
     @staticmethod
     def update_last_id(projects_folder: Path) -> None:
         """Update the last project id.
-        
+
         Parameters
         ----------
 
         projects_folder: Path
-            Path to the root of the projects folder.        
+            Path to the root of the projects folder.
         """
 
         # Get the last id

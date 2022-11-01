@@ -213,12 +213,12 @@ class MetadataParser:
 
     def _validate(self) -> bool:
         """Check current metadata values.
-        
+
         Returns
         -------
-        
+
         is_valid: bool
-           True if the metadata file is valid, False otherwise. 
+           True if the metadata file is valid, False otherwise.
         """
 
         # Check that the version matches the latest
