@@ -1,7 +1,9 @@
 import typer
 
 from .cli_init import check_if_initialized
-from .lib.config import ConfigurationParser
+from ..lib.config import ConfigurationParser
+
+__doc__ = "Command line actions to manage configuration options."
 
 # Load configuration (singleton)
 CONFIG_PARSER = ConfigurationParser()

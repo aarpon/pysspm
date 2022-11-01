@@ -9,6 +9,8 @@ import pandas as pd
 
 from .metadata import MetadataParser
 
+__doc__ = "Internal classes and functions to manage projects."
+
 
 class Project:
     """Class Project that takes care of initializing all project information and filesystem structure."""

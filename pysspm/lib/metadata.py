@@ -2,6 +2,8 @@ import configparser
 from pathlib import Path
 from typing import Union
 
+__doc__ = "Internal classes and functions to manage project metadata."
+
 
 class MetadataParser:
     """Project metadata (singleton class)."""

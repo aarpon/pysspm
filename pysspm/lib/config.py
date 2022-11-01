@@ -5,6 +5,8 @@ from pathlib import Path
 
 from .util import Singleton
 
+__doc__ = "Internal classes and functions to manage configuration options."
+
 
 class ConfigurationParser(object, metaclass=Singleton):
     """Configuration parser (singleton class)."""
@@ -12,7 +14,7 @@ class ConfigurationParser(object, metaclass=Singleton):
     def __init__(self):
         """Constructor.
 
-        The ConfigurationManager loads the configuration file if it exists or creates
+        The ConfigurationParser loads the configuration file if it exists or creates
         a default one that is not yet usable.
         """
 

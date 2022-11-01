@@ -1,3 +1,6 @@
+__doc__ = "Internal utilities."
+
+
 class Singleton(type):
     """Metaclass to implement the singleton pattern for classes."""
 

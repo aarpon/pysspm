@@ -8,9 +8,11 @@ import typer
 from tabulate import tabulate
 
 from .cli_init import check_if_initialized
-from .lib.config import ConfigurationParser, GlobalMetadataManager
-from .lib.metadata import MetadataParser
-from .lib.project import Project, ProjectManager
+from ..lib.config import ConfigurationParser, GlobalMetadataManager
+from ..lib.metadata import MetadataParser
+from ..lib.project import Project, ProjectManager
+
+__doc__ = "Command line actions to manage projects."
 
 # Load configuration (singleton)
 CONFIG_PARSER = ConfigurationParser()

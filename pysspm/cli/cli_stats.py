@@ -2,8 +2,11 @@ import typer
 from tabulate import tabulate
 
 from .cli_init import check_if_initialized
-from .lib.config import ConfigurationParser
-from .lib.project import ProjectManager
+from ..lib.config import ConfigurationParser
+from ..lib.project import ProjectManager
+
+
+__doc__ = "Command line actions to collect project statistics."
 
 # Load configuration (singleton)
 CONFIG_PARSER = ConfigurationParser()

@@ -2,7 +2,9 @@ from pathlib import Path
 
 import typer
 
-from .lib.config import ConfigurationParser
+from ..lib.config import ConfigurationParser
+
+__doc__ = "Command line actions to initialize sspm."
 
 # Load configuration (singleton)
 CONFIG_PARSER = ConfigurationParser()

@@ -1,10 +1,10 @@
 import typer
 
-from .cli_config import app as command_config_app
-from .cli_project import app as command_project_app
-from .cli_stats import app as command_stats_app
+from pysspm.cli.cli_config import app as command_config_app
+from pysspm.cli.cli_project import app as command_project_app
+from pysspm.cli.cli_stats import app as command_stats_app
 from . import __version__
-from .cli_init import initialize
+from pysspm.cli.cli_init import initialize
 from .lib.config import ConfigurationParser
 
 # Load configuration (singleton)
