@@ -27,5 +27,5 @@ $ pip install -e .
 
 ## Usage
 
-The end-user documentation can be found in [pysspm/docs/index.html](pysspm/docs/index.md).
+The end-user documentation can be found in [docs/index.html](docs/index.md).
 
