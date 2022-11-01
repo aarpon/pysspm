@@ -56,24 +56,48 @@ class ConfigurationParser(object, metaclass=Singleton):
             shutil.copyfile(self._conf_file, backup_file_name)
         self._write_default()
 
-    def __getitem__(self, item: str):
-        """Get item for current key."""
-        parts = item.split(".")
+    def __getitem__(self, key: str) -> str:
+        """Get value for current key.
+
+        Parameters
+        ----------
+
+        key: str
+            Key to be queried.
+
+        Returns
+        -------
+
+        value: str
+            Val        
+
+        """
+        parts = key.split(".")
         if parts[0] not in self._config.sections():
-            raise ValueError(f"Invalid configuration key '{item}'.")
+            raise ValueError(f"Invalid configuration key '{key}'.")
         if parts[1] not in self._config[parts[0]]:
-            raise ValueError(f"Invalid configuration key '{item}'.")
+            raise ValueError(f"Invalid configuration key '{key}'.")
         return self._config[parts[0]][parts[1]]
 
-    def __setitem__(self, item: str, value: str):
-        """Set value for requested item."""
+    def __setitem__(self, key: str, value: str):
+        """Set value for requested key.
+
+        Parameters
+        ----------
+
+        key: str
+            Key to be updated.
+
+        value: str
+            Value to be associated to the requested key.        
+        """
 
         # Find the correct keys
-        parts = item.split(".")
+        parts = key.split(".")
         if parts[0] not in self._config.sections():
-            raise ValueError(f"Invalid configuration key '{item}'.")
+            raise ValueError(f"Invalid configuration key '{key}'.")
         if parts[1] not in self._config[parts[0]]:
-            raise ValueError(f"Invalid configuration key '{item}'.")
+            raise ValueError(f"Invalid configuration key '{key}'.")
         self._config[parts[0]][parts[1]] = value
 
         # Write the configuration file
@@ -82,20 +106,48 @@ class ConfigurationParser(object, metaclass=Singleton):
 
     @property
     def config_file(self) -> str:
-        """Return full path of configuration file."""
+        """Return full path of configuration file.
+        
+        Returns
+        -------
+
+        conf_file: str
+            Full path to the configuration file.        
+        """
         return str(self._conf_file)
 
     @property
     def is_valid(self) -> bool:
-        """Check current configuration."""
+        """Check current configuration.
+
+        Returns
+        -------
+
+        is_valid: bool
+            True if the configuration file is valid, False otherwise.        
+        """
         return self._validate()
 
     def keys(self) -> list:
-        """Return the list of configuration keys."""
+        """Return the list of configuration keys.
+        
+        Returns
+        -------
+
+        keys: list[str]
+            List of configuration keys.        
+        """
         return self.valid_keys
 
-    def _validate(self):
-        """Check current configuration."""
+    def _validate(self) -> bool:
+        """Check current configuration.
+        
+        Returns
+        -------
+        
+        is_valid: bool
+           True if the metadata file is valid, False otherwise. 
+        """
 
         # Check that the version matches the latest
         if self._config["metadata"]["version"] != str(self._version):
@@ -146,10 +198,22 @@ class GlobalMetadataManager(object):
     """Project metadata manager (static class)."""
 
     @staticmethod
-    def get_last_id(projects_location: Path) -> int:
-        """Get the last project id."""
+    def get_last_id(projects_folder: Path) -> int:
+        """Get the last project id.
+        
+        Parameters
+        ----------
 
-        projects_metadata = Path(projects_location) / ".projects"
+        projects_folder: Path
+            Path to the root of the projects folder.
+
+        Returns
+        -------
+
+        last_id: int
+            Numeric ID of the mpst recent project.
+        """
+        projects_metadata = Path(projects_folder) / ".projects"
         if not projects_metadata.is_file():
             with open(projects_metadata, "w", encoding="utf-8") as f:
                 f.write("last_id=-1")
@@ -164,12 +228,19 @@ class GlobalMetadataManager(object):
         return last_id
 
     @staticmethod
-    def update_last_id(projects_location: Path) -> None:
-        """Update the last project id."""
+    def update_last_id(projects_folder: Path) -> None:
+        """Update the last project id.
+        
+        Parameters
+        ----------
+
+        projects_folder: Path
+            Path to the root of the projects folder.        
+        """
 
         # Get the last id
-        last_id = GlobalMetadataManager.get_last_id(projects_location)
+        last_id = GlobalMetadataManager.get_last_id(projects_folder)
         next_id = last_id + 1
-        projects_metadata = Path(projects_location) / ".projects"
+        projects_metadata = Path(projects_folder) / ".projects"
         with open(projects_metadata, "w", encoding="utf-8") as f:
             f.write(f"last_id={next_id}")

@@ -211,8 +211,15 @@ class MetadataParser:
         with open(self._metadata_file, "w", encoding="utf-8") as metadataFile:
             self._metadata.write(metadataFile)
 
-    def _validate(self):
-        """Check current metadata values."""
+    def _validate(self) -> bool:
+        """Check current metadata values.
+        
+        Returns
+        -------
+        
+        is_valid: bool
+           True if the metadata file is valid, False otherwise. 
+        """
 
         # Check that the version matches the latest
         if self._metadata["metadata"]["version"] != str(self._version):
