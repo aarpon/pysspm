@@ -7,8 +7,8 @@ import pytest
 from typer.testing import CliRunner
 
 from pysspm import __version__
-from pysspm.sspm import CONFIG_PARSER, app
 from pysspm.lib.project import ProjectManager
+from pysspm.sspm import CONFIG_PARSER, app
 
 # Instantiate a CliRunner object to be able to test the cli app
 runner = CliRunner()
@@ -62,7 +62,7 @@ def test_cli(run_before_and_after_tests):
     assert result.output == "projects.location = \n"
 
     # Replace it with a new value and check that the new value is saved
-    test_value = "/Users/aaron/Project"
+    test_value = str(Path(Path.home(), "Projects"))
     result = runner.invoke(app, ["config", "set", "projects.location", test_value])
     assert result.exit_code == 0
 
@@ -71,8 +71,34 @@ def test_cli(run_before_and_after_tests):
     new_value = re.search("projects.location = (.+?)\n", result.output).group(1)
     assert test_value == new_value
 
+    # Test setting an empty value for `projects.external_data`
+    result = runner.invoke(app, ["config", "set", "projects.external_data", ""])
+    assert result.exit_code == 0
+    assert result.output == ""
+
+    # Test setting an empty value for `projects.location`
+    result = runner.invoke(app, ["config", "set", "projects.location", ""])
+    assert result.exit_code == 1
+    assert result.output.startswith("Error")
+
+    # Check that the previous values was not modified
+    test_value = str(Path(Path.home(), "Projects"))
+    result = runner.invoke(app, ["config", "get", "projects.location"])
+    assert result.exit_code == 0
+    new_value = re.search("projects.location = (.+?)\n", result.output).group(1)
+    assert test_value == new_value
+
     # Create a couple of projects in a temporary directory
     with tempfile.TemporaryDirectory() as temp_project_dir:
+
+        # Also create an external data folder
+        external_data_folder = Path(temp_project_dir) / "external_data"
+        result = runner.invoke(
+            app, ["config", "set", "projects.external_data", str(external_data_folder)]
+        )
+        assert result.exit_code == 0
+        assert result.output == ""
+
         # Create and assign a temporary directory for tests
         result = runner.invoke(
             app, ["config", "set", "projects.location", temp_project_dir]
@@ -177,12 +203,12 @@ def test_cli(run_before_and_after_tests):
         project_path = ProjectManager.get_project_path_by_id(
             CONFIG_PARSER["projects.location"], "P_0000"
         )
-        assert (Path(project_path) / ".git").is_dir() == True
+        assert (Path(project_path) / ".git").is_dir() is True
 
         project_path = ProjectManager.get_project_path_by_id(
             CONFIG_PARSER["projects.location"], "P_0001"
         )
-        assert (Path(project_path) / ".git").is_dir() == True
+        assert (Path(project_path) / ".git").is_dir() is True
 
         # Disable git support
         result = runner.invoke(app, ["config", "set", "tools.use_git", "False"])
@@ -214,4 +240,14 @@ def test_cli(run_before_and_after_tests):
         project_path = ProjectManager.get_project_path_by_id(
             CONFIG_PARSER["projects.location"], "P_0002"
         )
-        assert (Path(project_path) / ".git").is_dir() == False
+        assert (Path(project_path) / ".git").is_dir() is False
+
+        # Check that we can get the external data folder and it exists
+        external_data_path = ProjectManager.get_external_data_path_by_id(
+            CONFIG_PARSER["projects.external_data"], "P_0001"
+        )
+        assert external_data_path != ""
+        assert external_data_path.startswith(str(external_data_folder))
+        assert "external_data" in external_data_path
+        assert "P_0001" in external_data_path
+        assert Path(external_data_path).is_dir() is True

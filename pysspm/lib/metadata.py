@@ -26,7 +26,6 @@ class MetadataParser:
 
         # Valid keys
         self.valid_keys = [
-            "metadata.version",
             "project.title",
             "project.start_date",
             "project.end_date",
@@ -36,6 +35,9 @@ class MetadataParser:
             "user.group",
             "user.collaborators",
         ]
+
+        # Metadata keys that can have empty value
+        self.valid_empty_keys = ["user.collaborators", "project.end_date"]
 
         # Configuration parser
         self._metadata = None
@@ -97,7 +99,7 @@ class MetadataParser:
         if parts[1] not in self._metadata[parts[0]]:
             raise ValueError(f"Invalid metadata key '{key}'.")
         if value == "" and not self.can_be_empty(key):
-            raise ValueError(f"Item {key} can not be set to ''.")
+            raise ValueError(f"Key {key} can not be set to ''.")
         # Set the value for the requested item
         self._metadata[parts[0]][parts[1]] = value
 
@@ -157,13 +159,10 @@ class MetadataParser:
             True if the requested metadata key can have value = "".
         """
 
-        settable_keys = self.valid_keys.copy()
-        settable_keys.remove("metadata.version")
-
-        if key not in settable_keys:
+        if key not in self.valid_keys:
             raise ValueError("The requested metadata key is not recognized.")
 
-        if key == "user.collaborators" or key == "project.end_date":
+        if key in self.valid_empty_keys:
             return True
 
         return False

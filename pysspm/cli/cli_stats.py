@@ -1,10 +1,9 @@
 import typer
 from tabulate import tabulate
 
-from .cli_init import check_if_initialized
 from ..lib.config import ConfigurationParser
 from ..lib.project import ProjectManager
-
+from .cli_init import check_if_initialized
 
 __doc__ = "Command line actions to collect project statistics."
 

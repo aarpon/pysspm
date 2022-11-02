@@ -7,10 +7,10 @@ from typing import Optional
 import typer
 from tabulate import tabulate
 
-from .cli_init import check_if_initialized
 from ..lib.config import ConfigurationParser, GlobalMetadataManager
 from ..lib.metadata import MetadataParser
 from ..lib.project import Project, ProjectManager
+from .cli_init import check_if_initialized
 
 __doc__ = "Command line actions to manage projects."
 
@@ -77,7 +77,7 @@ def create(
                 bold=True,
             )
         )
-        raise typer.Exit()
+        raise typer.Exit(1)
 
     # Extern data dir
     extern_data_dir = CONFIG_PARSER["projects.external_data"]
@@ -163,7 +163,10 @@ def open_folder(
     project_id: Optional[str] = typer.Argument(
         None,
         help="ID of the project folder to open. Omit to open the root projects folder.",
-    )
+    ),
+    external: Optional[bool] = typer.Option(
+        False, help="Open external data folder instead of project folder."
+    ),
 ):
     """Open a requested or all projects folder in the system's file explorer."""
 
@@ -171,11 +174,33 @@ def open_folder(
     check_if_initialized()
 
     if project_id is None:
-        folder_to_open = CONFIG_PARSER["projects.location"]
+        if external:
+            folder_to_open = CONFIG_PARSER["projects.external_data"]
+
+            # `projects.external_data` is not set in the configuration
+            if folder_to_open == "":
+
+                # Inform and return
+                if folder_to_open == "":
+                    typer.echo(
+                        typer.style(
+                            f"Error: `projects.external_data` is not set in the configuration.",
+                            fg=typer.colors.RED,
+                            bold=True,
+                        )
+                    )
+                    raise typer.Exit(1)
+        else:
+            folder_to_open = CONFIG_PARSER["projects.location"]
     else:
-        folder_to_open = ProjectManager.get_project_path_by_id(
-            CONFIG_PARSER["projects.location"], project_id
-        )
+        if external:
+            folder_to_open = ProjectManager.get_external_data_path_by_id(
+                CONFIG_PARSER["projects.external_data"], project_id
+            )
+        else:
+            folder_to_open = ProjectManager.get_project_path_by_id(
+                CONFIG_PARSER["projects.location"], project_id
+            )
 
     # Project not found. Inform and return
     if folder_to_open == "":
@@ -187,7 +212,7 @@ def open_folder(
                 bold=True,
             )
         )
-        raise typer.Exit()
+        raise typer.Exit(1)
 
     # Inform
     typer.echo(
@@ -210,7 +235,7 @@ def open_folder(
                     bold=True,
                 )
             )
-            raise typer.Exit()
+            raise typer.Exit(1)
 
     elif platform.system() == "Darwin":
         try:
@@ -224,7 +249,7 @@ def open_folder(
                     bold=True,
                 )
             )
-            raise typer.Exit()
+            raise typer.Exit(1)
 
     elif platform.system() == "Linux":
         try:
@@ -238,7 +263,7 @@ def open_folder(
                     bold=True,
                 )
             )
-            raise typer.Exit()
+            raise typer.Exit(1)
 
     else:
         typer.echo(
@@ -248,7 +273,7 @@ def open_folder(
                 bold=True,
             )
         )
-        raise typer.Exit()
+        raise typer.Exit(1)
 
 
 @app.command("close")
@@ -276,7 +301,7 @@ def close_project(
                 bold=True,
             )
         )
-        raise typer.Exit()
+        raise typer.Exit(1)
 
     # Make sure sspm configuration is initialized
     check_if_initialized()
@@ -296,7 +321,7 @@ def close_project(
                 bold=True,
             )
         )
-        raise typer.Exit()
+        raise typer.Exit(1)
 
     try:
         closing_date = ProjectManager.close(project_folder, mode)
@@ -310,7 +335,7 @@ def close_project(
                 bold=True,
             )
         )
-        raise typer.Exit()
+        raise typer.Exit(1)
 
 
 @app.command("get")
@@ -332,7 +357,7 @@ def get_metadata(
                 "Error: sspm is not configured yet.", fg=typer.colors.RED, bold=True
             )
         )
-        raise typer.Exit()
+        raise typer.Exit(1)
 
     # Try to find the requested project
     project_folder = ProjectManager.get_project_path_by_id(
@@ -349,7 +374,7 @@ def get_metadata(
                 bold=True,
             )
         )
-        raise typer.Exit()
+        raise typer.Exit(1)
 
     # Now initialize the metadata parser
     metadata_parser = MetadataParser(project_folder)
@@ -369,7 +394,7 @@ def get_metadata(
                 bold=True,
             )
         )
-        raise typer.Exit()
+        raise typer.Exit(1)
 
 
 @app.command("set")
@@ -393,7 +418,7 @@ def set_metadata(
                 bold=True,
             )
         )
-        raise typer.Exit()
+        raise typer.Exit(1)
 
     # Make sure sspm configuration is initialized
     check_if_initialized()
@@ -413,7 +438,7 @@ def set_metadata(
                 bold=True,
             )
         )
-        raise typer.Exit()
+        raise typer.Exit(1)
 
     # Now initialize the metadata parser
     metadata_parser = MetadataParser(project_folder)
@@ -427,7 +452,7 @@ def set_metadata(
                 bold=True,
             )
         )
-        raise typer.Exit()
+        raise typer.Exit(1)
 
     # Try to set the requested metadata value
     try:
@@ -439,7 +464,7 @@ def set_metadata(
                 f"The error was: {e}"
             )
         )
-        raise typer.Exit()
+        raise typer.Exit(1)
 
 
 @app.command("keys")

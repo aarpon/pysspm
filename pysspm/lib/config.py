@@ -30,6 +30,12 @@ class ConfigurationParser(object, metaclass=Singleton):
             "tools.git_ignore_data",
         ]
 
+        # Configuration keys that can have empty value
+        self.valid_empty_keys = [
+            "projects.external_data",
+            "tools.git_path",
+        ]
+
         # Configuration parser
         self._config = None
 
@@ -99,6 +105,8 @@ class ConfigurationParser(object, metaclass=Singleton):
             raise ValueError(f"Invalid configuration key '{key}'.")
         if parts[1] not in self._config[parts[0]]:
             raise ValueError(f"Invalid configuration key '{key}'.")
+        if value == "" and not self.can_be_empty(key):
+            raise ValueError(f"Key {key} can not be set to ''.")
         self._config[parts[0]][parts[1]] = value
 
         # Write the configuration file
@@ -139,6 +147,30 @@ class ConfigurationParser(object, metaclass=Singleton):
             List of configuration keys.
         """
         return self.valid_keys
+
+    def can_be_empty(self, key) -> bool:
+        """Return True if requested configuration key can be set to empty.
+
+        Parameters
+        ----------
+
+        key: str
+            Key for which to query whether it can be empty.
+
+        Returns
+        -------
+
+        result: bool
+            True if the requested configuration key can have value = "".
+        """
+
+        if key not in self.valid_keys:
+            raise ValueError("The requested configuration key is not recognized.")
+
+        if key in self.valid_empty_keys:
+            return True
+
+        return False
 
     def _validate(self) -> bool:
         """Check current configuration.

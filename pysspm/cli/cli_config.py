@@ -1,7 +1,7 @@
 import typer
 
-from .cli_init import check_if_initialized
 from ..lib.config import ConfigurationParser
+from .cli_init import check_if_initialized
 
 __doc__ = "Command line actions to manage configuration options."
 
@@ -55,11 +55,12 @@ def set(item: str, value: str):
     except ValueError as e:
         typer.echo(
             typer.style(
-                f"Error: Configuration key '{item}' does not exist.",
+                f"Error: {e}",
                 fg=typer.colors.RED,
                 bold=True,
             )
         )
+        raise typer.Exit(1)
 
 
 @app.command("get")
@@ -76,6 +77,7 @@ def get(key: str):
                 bold=True,
             )
         )
+        raise typer.Exit(1)
 
 
 @app.command("keys")

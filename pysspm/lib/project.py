@@ -562,6 +562,47 @@ class ProjectManager(object):
         return ""
 
     @staticmethod
+    def get_external_data_path_by_id(
+        external_data_folder: Path, project_id: str
+    ) -> str:
+        """Returns the full path to external data folder for project with given `project_id`.
+
+        Parameters
+        ----------
+
+        external_data_folder: Path
+            Path to the root of the external data folder.
+
+        project_id: str
+            Project ID (or a univocal substring) for which to return the external data folder full path.
+
+        Returns
+        -------
+
+        external_data_path: str
+            String containing the full path or "" if the data folder for the project could not be found.
+        """
+
+        # Retrieve all sub-folders that map to valid years
+        year_folders = ProjectManager._get_year_folders(external_data_folder)
+
+        # Now process the year folders to extract the months
+        for year_folder in year_folders:
+
+            # Extract valid month folders for current year folder
+            month_folders = ProjectManager._get_month_folders(year_folder)
+
+            # Now examine all project folders
+            for month_folder in month_folders:
+
+                for candidate_project_folder in Path(month_folder).iterdir():
+                    if project_id in Path(candidate_project_folder).name:
+                        return str(Path(candidate_project_folder).resolve())
+
+        # Could not find a project with given `project_id`
+        return ""
+
+    @staticmethod
     def close(project_folder: Union[Path, str], mode: str = "now") -> str:
         """Close the specified project, either \"now\" or at the date of the \"latest\" file modification.
 

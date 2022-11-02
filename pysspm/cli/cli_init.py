@@ -29,7 +29,7 @@ def initialize():
             re_init = "N"
         if re_init.upper() != "Y":
             typer.echo("Leaving configuration untouched.")
-            raise typer.Exit()
+            raise typer.Exit(0)
 
     # Inform
     typer.echo(
@@ -42,7 +42,7 @@ def initialize():
     # Ask the user to provide a value for `projects.location`
     projects_location = input("Please specify `projects.location` = ")
     if projects_location == "":
-        raise typer.Exit()
+        raise typer.Exit(1)
     projects_location = Path(projects_location)
     if projects_location.is_dir():
         typer.echo(f"Folder {projects_location} already exists.")
@@ -53,19 +53,19 @@ def initialize():
         if create_projects_location is None or create_projects_location == "":
             create_projects_location = "Y"
         if create_projects_location.upper() != "Y":
-            raise typer.Exit()
+            raise typer.Exit(1)
         try:
             projects_location.mkdir(parents=True, exist_ok=True)
             print(f"Projects folder `{projects_location}` successfully created.")
         except OSError as e:
             typer.echo(
                 typer.style(
-                    f"Sorry, folder `{projects_location}` could not be created: {e}",
+                    f"Error: folder `{projects_location}` could not be created: {e}",
                     fg=typer.colors.RED,
                     bold=True,
                 )
             )
-            raise typer.Exit()
+            raise typer.Exit(1)
     typer.echo(f"Storing projects location in configuration file.")
     CONFIG_PARSER["projects.location"] = str(projects_location)
     typer.echo(

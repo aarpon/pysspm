@@ -8,7 +8,7 @@ __doc__ = "Internal classes and functions to collect project statistics."
 
 class Stats:
     """Class Stats that takes care of collecting project statistics.
-    
+
     Not used so far.
     """
 
