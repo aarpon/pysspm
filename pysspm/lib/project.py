@@ -402,7 +402,9 @@ class ProjectManager(object):
 
     @staticmethod
     def get_projects(
-        projects_folder: Path, project_id: Optional[str] = None, detailed: bool = False
+        projects_folder: Union[Path, str],
+        project_id: Optional[str] = None,
+        detailed: bool = False,
     ) -> Union[None, pd.DataFrame]:
         """Return the metadata of either all projects, or the project with specified `project_id`.
 

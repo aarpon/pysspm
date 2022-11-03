@@ -251,3 +251,7 @@ def test_cli(run_before_and_after_tests):
         assert "external_data" in external_data_path
         assert "P_0001" in external_data_path
         assert Path(external_data_path).is_dir() is True
+
+        # Get statistics
+        result = runner.invoke(app, ["stats", "show"])
+        assert result.exit_code == 0
