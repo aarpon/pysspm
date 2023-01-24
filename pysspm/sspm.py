@@ -5,8 +5,8 @@ from pysspm.cli.cli_init import initialize
 from pysspm.cli.cli_project import app as command_project_app
 from pysspm.cli.cli_stats import app as command_stats_app
 
-from . import __version__
-from .lib.config import ConfigurationParser
+from pysspm import __version__
+from pysspm.lib.config import ConfigurationParser
 
 # Load configuration (singleton)
 CONFIG_PARSER = ConfigurationParser()
