@@ -239,7 +239,7 @@ def open_folder(
 
     elif platform.system() == "Darwin":
         try:
-            subprocess.call(["open", folder_to_open])
+            subprocess.Popen(["open", folder_to_open])
         except FileNotFoundError as _:
             typer.echo(
                 typer.style(
@@ -253,7 +253,7 @@ def open_folder(
 
     elif platform.system() == "Linux":
         try:
-            subprocess.call(["xdg-open", folder_to_open])
+            subprocess.Popen(["xdg-open", folder_to_open])
         except FileNotFoundError as _:
             typer.echo(
                 typer.style(
