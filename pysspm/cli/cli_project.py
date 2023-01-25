@@ -194,6 +194,22 @@ def open_folder(
             folder_to_open = CONFIG_PARSER["projects.location"]
     else:
         if external:
+
+            # Is an external folder configured?
+            external_data_folder = CONFIG_PARSER["projects.external_data"]
+            if external_data_folder == "":
+
+                # Inform and return
+                typer.echo(
+                    typer.style(
+                        f"Error: `projects.external_data` is not set in the configuration.",
+                        fg=typer.colors.RED,
+                        bold=True,
+                    )
+                )
+                raise typer.Exit(1)
+
+            # Find the project folder to open
             folder_to_open = ProjectManager.get_external_data_path_by_id(
                 CONFIG_PARSER["projects.external_data"], project_id
             )
