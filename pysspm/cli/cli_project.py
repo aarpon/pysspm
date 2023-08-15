@@ -2,6 +2,7 @@ import os
 import platform
 import re
 import subprocess
+from pathlib import Path
 from typing import Optional
 
 import typer
@@ -211,11 +212,11 @@ def open_folder(
 
             # Find the project folder to open
             folder_to_open = ProjectManager.get_external_data_path_by_id(
-                CONFIG_PARSER["projects.external_data"], project_id
+                Path(CONFIG_PARSER["projects.external_data"]), project_id
             )
         else:
             folder_to_open = ProjectManager.get_project_path_by_id(
-                CONFIG_PARSER["projects.location"], project_id
+                Path(CONFIG_PARSER["projects.location"]), project_id
             )
 
     # Project not found. Inform and return
@@ -324,7 +325,7 @@ def close_project(
 
     # Get the full path to the requested project ID.
     project_folder = ProjectManager.get_project_path_by_id(
-        CONFIG_PARSER["projects.location"], project_id
+        Path(CONFIG_PARSER["projects.location"]), project_id
     )
 
     # Project not found. Inform and return
@@ -377,7 +378,7 @@ def get_metadata(
 
     # Try to find the requested project
     project_folder = ProjectManager.get_project_path_by_id(
-        CONFIG_PARSER["projects.location"], project_id
+        Path(CONFIG_PARSER["projects.location"]), project_id
     )
 
     # Project not found. Inform and return
@@ -441,7 +442,7 @@ def set_metadata(
 
     # Try to find the requested project
     project_folder = ProjectManager.get_project_path_by_id(
-        CONFIG_PARSER["projects.location"], project_id
+        Path(CONFIG_PARSER["projects.location"]), project_id
     )
 
     # Project not found. Inform and return
