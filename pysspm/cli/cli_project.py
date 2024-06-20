@@ -139,6 +139,14 @@ def show(
     alltime: Optional[bool] = typer.Option(
         False, help="Show projects from all past years instead of current only."
     ),
+    open: Optional[bool] = typer.Option(
+        False,
+        help="Show only open projects.  Passing --open and --closed is equivalent to omitting both.",
+    ),
+    closed: Optional[bool] = typer.Option(
+        False,
+        help="Show only closed projects. Passing --open and --closed is equivalent to omitting both.",
+    ),
 ):
     """List all projects."""
 
@@ -147,7 +155,7 @@ def show(
 
     # Retrieve the projects table
     project_dataframe = ProjectManager.get_projects(
-        CONFIG_PARSER["projects.location"], project_id, detailed, alltime
+        CONFIG_PARSER["projects.location"], project_id, detailed, alltime, open, closed
     )
 
     if project_dataframe is None:
@@ -161,6 +169,7 @@ def show(
             tablefmt="fancy_grid",
         )
         typer.echo(table)
+        print(f"  Found {len(project_dataframe.index)} projects.")
 
 
 @app.command("open")

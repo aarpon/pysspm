@@ -29,7 +29,9 @@ class StatisticManager:
         """
 
         # Retrieve the projects table
-        project_dataframe = ProjectManager.get_projects(projects_folder, detailed=True)
+        project_dataframe = ProjectManager.get_projects(
+            projects_folder, detailed=True, alltime=True
+        )
 
         # If nothing found, return
         if project_dataframe is None:

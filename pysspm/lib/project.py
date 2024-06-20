@@ -429,6 +429,8 @@ class ProjectManager(object):
         project_id: Optional[str] = None,
         detailed: bool = False,
         alltime: bool = False,
+        open: bool = False,
+        closed: bool = False,
     ) -> Union[None, pd.DataFrame]:
         """Return the metadata of either all projects, or the project with specified `project_id`.
 
@@ -447,12 +449,22 @@ class ProjectManager(object):
         alltime: bool = False
             Whether to return all projects or only those from current year.
 
+        open: bool = False
+            Show only open projects. Setting both open and closed to True is equivalent to omitting both.
+
+        closed: bool = False
+            Show only closed projects. Setting both open and closed to True is equivalent to omitting both.
+
         Returns
         -------
 
         metadata: Union[None|pd.Dataframe]
             Dataframe containing project metadata or None if the requested `project_id` could not be found.
         """
+
+        # Simplification: if both `open` and `closed` are False, we set them both to True
+        if not open and not closed:
+            open = closed = True
 
         # Current year (as string)
         this_year = str(date.today().year)
@@ -489,34 +501,44 @@ class ProjectManager(object):
                             metadata_parser = MetadataParser(candidate_project_folder)
                             metadata = metadata_parser.read()
 
-                            # Add project data
-                            if detailed:
-                                project_data.append(
-                                    [
-                                        int(year_folder.name),
-                                        int(month_folder.name),
-                                        candidate_project_folder.name,
-                                        metadata["project.title"],
-                                        metadata["user.name"],
-                                        metadata["user.email"],
-                                        metadata["user.group"],
-                                        metadata["project.start_date"],
-                                        metadata["project.end_date"],
-                                        metadata["project.status"],
-                                    ]
-                                )
-                            else:
-                                project_data.append(
-                                    [
-                                        int(year_folder.name),
-                                        int(month_folder.name),
-                                        candidate_project_folder.name,
-                                        metadata["project.title"],
-                                        metadata["user.name"],
-                                        metadata["user.group"],
-                                        metadata["project.status"],
-                                    ]
-                                )
+                            # Apply `open` or `closed` filter
+                            if (
+                                open
+                                and ProjectStatus(metadata["project.status"]).is_open()
+                                or closed
+                                and not ProjectStatus(
+                                    metadata["project.status"]
+                                ).is_open()
+                            ):
+
+                                # Add project data
+                                if detailed:
+                                    project_data.append(
+                                        [
+                                            int(year_folder.name),
+                                            int(month_folder.name),
+                                            candidate_project_folder.name,
+                                            metadata["project.title"],
+                                            metadata["user.name"],
+                                            metadata["user.email"],
+                                            metadata["user.group"],
+                                            metadata["project.start_date"],
+                                            metadata["project.end_date"],
+                                            metadata["project.status"],
+                                        ]
+                                    )
+                                else:
+                                    project_data.append(
+                                        [
+                                            int(year_folder.name),
+                                            int(month_folder.name),
+                                            candidate_project_folder.name,
+                                            metadata["project.title"],
+                                            metadata["user.name"],
+                                            metadata["user.group"],
+                                            metadata["project.status"],
+                                        ]
+                                    )
                         except Exception as e:
                             print(e)
 
