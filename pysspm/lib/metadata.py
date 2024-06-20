@@ -4,6 +4,8 @@ from typing import Union
 
 __doc__ = "Internal classes and functions to manage project metadata."
 
+from pysspm.lib.project_status import ProjectStatus
+
 
 class MetadataParser:
     """Project metadata (singleton class)."""
@@ -101,6 +103,12 @@ class MetadataParser:
         if value == "" and not self.can_be_empty(key):
             raise ValueError(f"Key {key} can not be set to ''.")
         # Set the value for the requested item
+        if parts[0] == "project" and parts[1] == "status":
+            # Special treatment
+            try:
+                value = ProjectStatus(value)
+            except ValueError:
+                raise ValueError(f"Unrecognized project status '{value}'.")
         self._metadata[parts[0]][parts[1]] = value
 
         # Write the metadata file

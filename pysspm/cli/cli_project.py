@@ -11,6 +11,7 @@ from tabulate import tabulate
 from ..lib.config import ConfigurationParser, GlobalMetadataManager
 from ..lib.metadata import MetadataParser
 from ..lib.project import Project, ProjectManager
+from ..lib.project_status import ProjectStatus
 from .cli_init import check_if_initialized
 
 __doc__ = "Command line actions to manage projects."
@@ -117,7 +118,7 @@ def create(
     project.init()
 
     # Update the last project ID
-    GlobalMetadataManager.update_last_id(projects_location)
+    GlobalMetadataManager.update_last_id(Path(projects_location).resolve())
 
     # Inform
     typer.echo(
@@ -135,6 +136,9 @@ def show(
         None, help="ID of the project to visualize. Omit to show all projects."
     ),
     detailed: Optional[bool] = typer.Option(False, help="Toggle detailed information."),
+    alltime: Optional[bool] = typer.Option(
+        False, help="Show projects from all past years instead of current only."
+    ),
 ):
     """List all projects."""
 
@@ -143,7 +147,7 @@ def show(
 
     # Retrieve the projects table
     project_dataframe = ProjectManager.get_projects(
-        CONFIG_PARSER["projects.location"], project_id, detailed
+        CONFIG_PARSER["projects.location"], project_id, detailed, alltime
     )
 
     if project_dataframe is None:
@@ -303,17 +307,35 @@ def close_project(
         "now",
         help='How to close the project. One of "now" or "latest".',
     ),
+    status: str = typer.Argument(
+        "completed",
+        help='Status with which to close the project. One of ["superseded", "dropped", "completed"]',
+    ),
 ):
-    """Close the requested project either \"now\" or at the date of the \"latest\" modification.
+    """Close the requested project either \"now\" or at the date of the \"latest\" modification with the passed
+    `project.status` (default is "completed").
 
-    The `project.end_date` property will be set to the requested date, and the `project.status` property
-    will be set to `completed`.
+    The `project.end_date` property will be set to the requested date.
     """
 
     if mode not in ["now", "latest"]:
         typer.echo(
             typer.style(
                 f'Error: "mode" must be one of "now" or "latest".',
+                fg=typer.colors.RED,
+                bold=True,
+            )
+        )
+        raise typer.Exit(1)
+
+    # Make sure the status is a valid "close" status
+    try:
+        status = ProjectStatus(status)
+        assert not status.is_open()
+    except ValueError:
+        typer.echo(
+            typer.style(
+                f'Error: "status" must be one of "superseded", "dropped", or "completed" (default).',
                 fg=typer.colors.RED,
                 bold=True,
             )
@@ -341,7 +363,7 @@ def close_project(
         raise typer.Exit(1)
 
     try:
-        closing_date = ProjectManager.close(project_folder, mode)
+        closing_date = ProjectManager.close(project_folder, mode, status)
         typer.echo(f"Project closed with end date {closing_date}.")
     except Exception as e:
         typer.echo(

@@ -8,6 +8,7 @@ from typing import Optional, Union
 import pandas as pd
 
 from .metadata import MetadataParser
+from .project_status import ProjectStatus
 
 __doc__ = "Internal classes and functions to manage projects."
 
@@ -175,6 +176,9 @@ class Project:
         # Add external repos
         self._set_extern_git_projects()
 
+        # Commit changes to metadata folder
+        self.commit_changes_to_metadata()
+
         # Set the init flag
         self._is_init = True
 
@@ -294,6 +298,25 @@ class Project:
         # Change back
         os.chdir(curr_path)
 
+    def commit_changes_to_metadata(self):
+        """Commit changes to the metadata."""
+
+        if not self.use_git:
+            return
+
+        if self.git_path == "":
+            return
+
+        # Add metadata.ini and commit
+        curr_path = os.getcwd()
+        os.chdir(self.PROJECT_ROOT_DIR)
+        subprocess.run(["git", "add", self.METADATA_PATH / "metadata.ini"])
+        subprocess.run(["git", "add", self.METADATA_PATH / "description.md"])
+        subprocess.run(["git", "commit", "-m", '"Updated metadata."'])
+
+        # Change back
+        os.chdir(curr_path)
+
     def _process_list_if_extern_git_repos(self, repo_list: str):
         """Process the list of git repos and returns them in a dictionary.
 
@@ -405,6 +428,7 @@ class ProjectManager(object):
         projects_folder: Union[Path, str],
         project_id: Optional[str] = None,
         detailed: bool = False,
+        alltime: bool = False,
     ) -> Union[None, pd.DataFrame]:
         """Return the metadata of either all projects, or the project with specified `project_id`.
 
@@ -420,12 +444,18 @@ class ProjectManager(object):
         detailed: bool
             Whether to return complete metadata or a subset.
 
+        alltime: bool = False
+            Whether to return all projects or only those from current year.
+
         Returns
         -------
 
         metadata: Union[None|pd.Dataframe]
             Dataframe containing project metadata or None if the requested `project_id` could not be found.
         """
+
+        # Current year (as string)
+        this_year = str(date.today().year)
 
         # Retrieve all sub-folders that map to valid years
         year_folders = ProjectManager._get_year_folders(projects_folder)
@@ -435,6 +465,9 @@ class ProjectManager(object):
 
         # Now process the year folders to extract the months
         for year_folder in year_folders:
+
+            if not alltime and year_folder.name != this_year:
+                continue
 
             # Extract valid month folders for current year folder
             month_folders = ProjectManager._get_month_folders(year_folder)
@@ -605,7 +638,11 @@ class ProjectManager(object):
         return ""
 
     @staticmethod
-    def close(project_folder: Union[Path, str], mode: str = "now") -> str:
+    def close(
+        project_folder: Union[Path, str],
+        mode: str = "now",
+        status: Union[ProjectStatus.completed, str] = ProjectStatus.completed,
+    ) -> str:
         """Close the specified project, either \"now\" or at the date of the \"latest\" file modification.
 
         Parameters
@@ -620,6 +657,9 @@ class ProjectManager(object):
             the date of the last modification date find in the whole folder (excluding metadata and git
             information). In both cases, date will be in the form DD/MM/YYYY.
 
+        status: Union[ProjectStatus.completed, str]
+            Status with which to close the project. One of ["superseded", "dropped", "completed"].
+
         Returns
         -------
 
@@ -629,6 +669,15 @@ class ProjectManager(object):
 
         if mode not in ["now", "latest"]:
             raise ValueError('"mode" must be one of "now" or "latest".')
+
+        # Make sure the status is a valid "close" status
+        try:
+            status = ProjectStatus(status)
+            assert not status.is_open()
+        except ValueError:
+            raise ValueError(
+                'Error: "status" must be one of "superseded", "dropped", or "completed" (default).'
+            )
 
         if not Path(project_folder).is_dir():
             raise IOError(f"Path {project_folder} does not exist.")
@@ -647,7 +696,7 @@ class ProjectManager(object):
 
         # Close the project with this date
         metadata_parser["project.end_date"] = closing_date
-        metadata_parser["project.status"] = "completed"
+        metadata_parser["project.status"] = status
 
         # Return the closing data
         return closing_date

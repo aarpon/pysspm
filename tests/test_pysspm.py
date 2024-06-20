@@ -191,12 +191,58 @@ def test_cli(run_before_and_after_tests):
         ret_collaborator = result.output.rstrip()
         assert ret_collaborator == collaborator
 
-        # Close project P_0000 "now"
+        # Set all possible statuses of project P_000
+        result = runner.invoke(
+            app, ["project", "set", "P_0000", "project.status", "new"]
+        )
+        assert result.exit_code == 0
+
+        result = runner.invoke(
+            app, ["project", "set", "P_0000", "project.status", "feedback"]
+        )
+        assert result.exit_code == 0
+
+        result = runner.invoke(
+            app, ["project", "set", "P_0000", "project.status", "in progress"]
+        )
+        assert result.exit_code == 0
+
+        result = runner.invoke(
+            app, ["project", "set", "P_0000", "project.status", "waiting for data"]
+        )
+        assert result.exit_code == 0
+
+        result = runner.invoke(
+            app, ["project", "set", "P_0000", "project.status", "superseded"]
+        )
+        assert result.exit_code == 0
+
+        result = runner.invoke(
+            app, ["project", "set", "P_0000", "project.status", "dropped"]
+        )
+        assert result.exit_code == 0
+
+        result = runner.invoke(
+            app, ["project", "set", "P_0000", "project.status", "completed"]
+        )
+        assert result.exit_code == 0
+
+        # Set an invalid project status
+        result = runner.invoke(
+            app, ["project", "set", "P_0000", "project.status", "invalid status"]
+        )
+        assert result.exit_code == 1
+
+        # Ty closing project P_0000 "now" with unacceptable status
+        result = runner.invoke(app, ["project", "close", "P_0000", "now", "new"])
+        assert result.exit_code == 1
+
+        # Close project P_0000 "now" (default status)
         result = runner.invoke(app, ["project", "close", "P_0000", "now"])
         assert result.exit_code == 0
 
-        # Close project P_0001 at "latest" modification
-        result = runner.invoke(app, ["project", "close", "P_0001", "latest"])
+        # Close project P_0001 at "latest" modification with "dropped" status
+        result = runner.invoke(app, ["project", "close", "P_0001", "latest", "dropped"])
         assert result.exit_code == 0
 
         # Check that the .git folder in the projects with ID P_0000 and P_0001 exists
