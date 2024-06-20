@@ -1,25 +1,51 @@
 [tool.poetry]
 name = "pysspm"
-version = "0.2.1"
+version = "0.2.2"
 description = "Simple Scientific Project Manager."
 authors = ["Aaron Ponti <aaron.ponti@bsse.ethz.ch>"]
 license = "Apache-2.0"
 repository = "https://github.com/aarpon/pysspm"
 documentation = "https://github.com/aarpon/pysspm"
 
+[tool.black]
+line-length = 88
+target-version = ['py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.mypy_cache
+  | \.venv
+  | _build
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+py_version = 310
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 88
+combine_as_imports = true
+known_third_party = []
+
 [tool.poetry.dependencies]
-python = "^3.10"
-typer = "^0.4.1"
-colorama = "^0.4.4"
-tabulate = "^0.8.10"
-pandas = "^1.5.0"
+python = "^3.11"
+typer = "^0.12.3"
+colorama = "^0.4.6"
+tabulate = "^0.9.0"
+pandas = "^2.0.0"
+numpy = "^1.26.4"
 
 [tool.poetry.dev-dependencies]
-pytest = "^6.2.5"
-black = "^22.3.0"
-isort = "^5.10.1"
+pytest = "^8.2.2"
 tomli = "^2.0.1"
 pdoc3 = "^0.10.0"
+pre-commit = "^3.7.1"
 
 [tool.poetry.scripts]
 sspm = "pysspm.sspm:main"
