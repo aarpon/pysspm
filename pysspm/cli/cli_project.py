@@ -137,7 +137,8 @@ def show(
     ),
     detailed: Optional[bool] = typer.Option(False, help="Toggle detailed information."),
     alltime: Optional[bool] = typer.Option(
-        False, help="Show projects from all past years instead of current only."
+        False,
+        help="Show projects from all past years instead of just the ones started in the last 365 days.",
     ),
     open: Optional[bool] = typer.Option(
         False,
@@ -162,6 +163,32 @@ def show(
         typer.echo("No projects found.")
         return
     else:
+        # Display explanation of what is shown.
+        detailed_str = " list of "
+        status = "all"
+        if detailed:
+            detailed_str = " detailed list of "
+        if not alltime:
+            time_span = " started within the last 365 days"
+            if open and closed:
+                status = "all"
+            elif open:
+                status = "open"
+            elif closed:
+                status = "closed"
+            else:
+                status = "all"
+        else:
+            time_span = ""
+        typer.echo(
+            typer.style(
+                f"Showing{detailed_str}{status} projects{time_span}.",
+                fg=typer.colors.GREEN,
+                bold=True,
+            )
+        )
+
+        # Display table
         table = tabulate(
             project_dataframe,
             headers=project_dataframe.columns,
@@ -169,7 +196,14 @@ def show(
             tablefmt="fancy_grid",
         )
         typer.echo(table)
-        print(f"  Found {len(project_dataframe.index)} projects.")
+        typer.echo(
+            typer.style(
+                f"Found {len(project_dataframe.index)} projects.",
+                fg=typer.colors.GREEN,
+                bold=True,
+            )
+        )
+        print(terminal_size.columns, total_length, all_lengths_but_title, max_width)
 
 
 @app.command("open")
@@ -491,7 +525,24 @@ def set_metadata(
     # Now initialize the metadata parser
     metadata_parser = MetadataParser(project_folder)
 
-    # Can the value be empty?
+    # Is `metadata_key` a valid and recognized key?
+    is_metadata_key_valid = True
+    try:
+        _ = metadata_parser.can_be_empty(metadata_key)
+    except ValueError as _:
+        is_metadata_key_valid = False
+
+    if not is_metadata_key_valid:
+        # If the metadata key is not valid, inform and exit here.
+        typer.echo(
+            typer.style(
+                f"Error: '{metadata_key}' is not a valid metadata key!",
+                fg=typer.colors.RED,
+                bold=True,
+            )
+        )
+        raise typer.Exit(1)
+
     if metadata_value == "" and not metadata_parser.can_be_empty(metadata_key):
         typer.echo(
             typer.style(

@@ -31,7 +31,7 @@ force_grid_wrap = 0
 use_parentheses = true
 line_length = 88
 combine_as_imports = true
-known_third_party = ["pandas", "pytest", "tabulate", "typer"]
+known_third_party = ["dateutil", "pandas", "pytest", "tabulate", "typer"]
 
 [tool.poetry.dependencies]
 python = "^3.11"

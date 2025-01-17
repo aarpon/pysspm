@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Optional, Union
 
 import pandas as pd
+from dateutil.relativedelta import relativedelta
 
 from .metadata import MetadataParser
 from .project_status import ProjectStatus
@@ -466,11 +467,12 @@ class ProjectManager(object):
         if not open and not closed:
             open = closed = True
 
-        # Current year (as string)
-        this_year = str(date.today().year)
+        # Last 365 days
+        one_year_ago = datetime.now() - relativedelta(years=1)
 
         # Retrieve all sub-folders that map to valid years
         year_folders = ProjectManager._get_year_folders(projects_folder)
+        last_year = int(one_year_ago.year)
 
         # List to collect project information for rendering
         project_data = []
@@ -478,7 +480,8 @@ class ProjectManager(object):
         # Now process the year folders to extract the months
         for year_folder in year_folders:
 
-            if not alltime and year_folder.name != this_year:
+            # First, rough filtering
+            if not alltime and int(year_folder.name) < last_year:
                 continue
 
             # Extract valid month folders for current year folder
@@ -500,6 +503,18 @@ class ProjectManager(object):
                         try:
                             metadata_parser = MetadataParser(candidate_project_folder)
                             metadata = metadata_parser.read()
+
+                            # Get creation date
+                            start_date = metadata["project.start_date"].split("/")
+                            start_date = date(
+                                year=int(start_date[2]),
+                                month=int(start_date[1]),
+                                day=int(start_date[0]),
+                            )
+
+                            # Correct filtering by date
+                            if not alltime and start_date < one_year_ago.date():
+                                continue
 
                             # Apply `open` or `closed` filter
                             if (
@@ -540,7 +555,11 @@ class ProjectManager(object):
                                         ]
                                     )
                         except Exception as e:
-                            print(e)
+                            if project_id is not None:
+                                project_id_str = str(project_id)
+                            else:
+                                project_id_str = str(candidate_project_folder.name)
+                            print(f"{project_id_str}: {e}")
 
         if detailed:
             headers = [

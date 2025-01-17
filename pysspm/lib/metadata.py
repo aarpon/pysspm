@@ -94,6 +94,17 @@ class MetadataParser:
             Value to be associated to the requested key.
         """
 
+        # Is `key` a valid and recognized key?
+        is_key_valid = True
+        try:
+            _ = self.can_be_empty(key)
+        except ValueError as _:
+            is_key_valid = False
+
+        if not is_key_valid:
+            # If the key is not valid, raise an Error.
+            raise ValueError(f"Error: '{key}' is not a valid metadata key!")
+
         # Find the correct keys
         parts = key.split(".")
         if parts[0] not in self._metadata.sections():
