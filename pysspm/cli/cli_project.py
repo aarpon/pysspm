@@ -203,7 +203,6 @@ def show(
                 bold=True,
             )
         )
-        print(terminal_size.columns, total_length, all_lengths_but_title, max_width)
 
 
 @app.command("open")
